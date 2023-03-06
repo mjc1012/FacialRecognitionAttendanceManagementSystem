@@ -1,0 +1,154 @@
+<app-spinner></app-spinner>
+<app-navbar></app-navbar>
+
+<div class="container my-5" id="main-container">
+  <h1 class="mb-3">Account</h1>
+  <table class="table" *ngIf="employee">
+    <thead>
+      <tr>
+        <th>id</th>
+        <th>profilePicture</th>
+        <th>firstName</th>
+        <th>middleName</th>
+        <th>lastName</th>
+        <th>emailAddress</th>
+        <th>employeeIdNumber</th>
+        <th>isAdmin</th>
+        <th>Update Information</th>
+        <th>Update Password</th>
+        <th>Update Profile</th>
+        <th>Delete</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>{{ employee.id }}</td>
+        <td><img style="height:80px;width:100px;" [src]="imageBaseUrl+employee.profilePictureImageName" alt=""></td>
+        <td>{{ employee.firstName }}</td>
+        <td>{{ employee.middleName }}</td>
+        <td>{{ employee.lastName }}</td>
+        <td>{{ employee.emailAddress }}</td>
+        <td>{{ employee.employeeIdNumber }}</td>
+        <td>{{ employee.employeeRoleName }}</td>
+        <td><button  type="button" data-bs-toggle="modal" data-bs-target="#updateEmployeeModal">Update Information</button></td>
+        <td><button  type="button" data-bs-toggle="modal" data-bs-target="#updatePasswordModal">Update Password</button></td>
+        <td><button  type="button" data-bs-toggle="modal" data-bs-target="#updateProfilePictureModal">Update Profile Picture</button></td>
+        <td><button  type="button" data-bs-toggle="modal" data-bs-target="#deleteEmployeeModal">Delete</button></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="modal fade" id="updatePasswordModal" tabindex="-1" role="dialog" aria-labelledby="updatePasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+         <div class="modal-header">
+          <h5 class="modal-title" id="updatePasswordModalLabel">Edit Employee {{employee.firstName }} Password</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+            </button>
+         </div>
+         <div class="modal-body">
+          <form #editPasswordForm="ngForm">
+            <input type="hidden" ngModel="{{ employee.employeeIdNumber}}" name="employeeIdNumber" id="employeeIdNumber" required>
+
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input type="password" ngModel name="password" class="form-control" id="password" required>
+           </div>
+
+            <div class="modal-footer">
+              <button type="button" id="add-employee-form" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button (click)="onUpdatePassword(editPasswordForm)" [disabled]="editPasswordForm.invalid" data-bs-dismiss="modal" class="btn btn-primary" >Save changes</button>
+            </div>
+            </form>
+         </div>
+      </div>
+    </div>
+    </div>
+
+  <div class="modal fade" id="updateProfilePictureModal" tabindex="-1" role="dialog" aria-labelledby="updateProfilePictureModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+         <div class="modal-header">
+          <h5 class="modal-title" id="updateProfilePictureModalLabel">Edit Employee {{employee.firstName }} Profile Picture</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+            </button>
+         </div>
+         <div class="modal-body">
+          <form #editProfileForm="ngForm">
+            <input type="hidden" ngModel="{{ employee.employeeIdNumber }}" name="employeeIdNumber" id="employeeIdNumber" required>
+
+            <div class="form-group">
+               <label for="imageFile">ImageFile</label>
+               <input type="file" (change)="onChange($event)" name="imageFile" class="form-control" id="imageFile" required>
+            </div>
+
+            <div class="modal-footer">
+              <button type="button" id="add-employee-form" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button (click)="onUpdateProfilePicture(editProfileForm)" [disabled]="editProfileForm.invalid" data-bs-dismiss="modal" class="btn btn-primary" >Save changes</button>
+            </div>
+            </form>
+         </div>
+      </div>
+    </div>
+    </div>
+
+
+  <div class="modal fade" id="updateEmployeeModal" tabindex="-1" role="dialog" aria-labelledby="employeeEditModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+         <div class="modal-header">
+          <h5 class="modal-title" id="updateEmployeeModalLabel">Edit Employee {{employee.firstName }}</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+            </button>
+         </div>
+         <div class="modal-body">
+          <form #editForm="ngForm">
+            <input type="hidden" ngModel="{{ employee.id }}" name="id" id="id" required>
+            <input type="hidden" ngModel="{{ employee.employeeIdNumber}}" name="employeeIdNumber" id="employeeIdNumber" required>
+            <input type="hidden" ngModel="{{ employee.employeeRoleName}}" name="employeeRoleName" id="employeeRoleName" required>
+            <div class="form-group">
+               <label for="firstName">firstName</label>
+               <input type="text" ngModel="{{ employee.firstName}}" name="firstName" class="form-control" id="firstName" placeholder="firstName" required>
+            </div>
+            <div class="form-group">
+               <label for="middleName">middleName</label>
+               <input type="text" ngModel="{{ employee.middleName}}" name="middleName" class="form-control" id="middleName" placeholder="middleName" required>
+            </div>
+            <div class="form-group">
+               <label for="lastName">lastName</label>
+               <input type="text" ngModel="{{ employee.lastName}}" name="lastName" class="form-control" id="lastName" placeholder="lastName" required>
+            </div>
+            <div class="form-group">
+               <label for="emailAddress">emailAddress</label>
+               <input type="text" ngModel="{{ employee.emailAddress}}" name="emailAddress" class="form-control" id="emailAddress" placeholder="emailAddress" required>
+            </div>
+            <div class="modal-footer">
+              <button type="button" id="add-employee-form" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button (click)="onUpdateEmloyee(editForm)" [disabled]="editForm.invalid" data-bs-dismiss="modal" class="btn btn-primary" >Save changes</button>
+            </div>
+            </form>
+         </div>
+      </div>
+    </div>
+    </div>
+
+    <!-- Delete Modal -->
+<div class="modal fade" id="deleteEmployeeModal" tabindex="-1" role="dialog" aria-labelledby="deleteModelLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+     <div class="modal-content">
+        <div class="modal-header">
+           <h5 class="modal-title" id="deleteModelLabel">Delete Employee</h5>
+           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+           </button>
+        </div>
+        <div class="modal-body">
+           <p>Are you sure you want to delete employee {{employee.firstName}}?</p>
+           <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+              <button (click)="onDeleteEmloyee(employee)" class="btn btn-danger" data-bs-dismiss="modal">Yes</button>
+           </div>
+        </div>
+     </div>
+  </div>
+</div>
+</div>

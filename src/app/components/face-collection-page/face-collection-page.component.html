@@ -1,0 +1,54 @@
+<app-spinner></app-spinner>
+<app-navbar></app-navbar>
+
+<div class="container mt-4">
+<video id="video" autoplay style="display: none;"></video>
+<canvas id="canvas" width="700px" height="700px"></canvas>
+
+<br>
+<p >{{ cameraMessage }}</p>
+<p >{{ cameraWarning }}</p>
+<p >{{ countDownMessage }}</p>
+<br>
+
+<div *ngIf="isExpressionDisplayed">
+  <img id="expressionSample" [src]="faceExpressionImageBaseUrl+faceExpressionImageFile">
+  <p>{{expressionMessage}}</p>
+</div>
+
+<div *ngIf="isQuestionFormDisplayed">
+    <img id="outputImage" [src]="dataUrl">
+    <p>Are you satisfied with this picture?</p>
+    <button (click)="saveFace()">Yes</button>
+    <button (click)="startVideoAgain()">No</button>
+</div>
+
+<div *ngIf="facesToTrain?.length != 0 || facesToTrain != null">
+  <div  *ngFor="let face of facesToTrain">
+    <img [src]="faceToTrainImageBaseUrl + currentPerson.id + '/' + face.imageFile">
+    <button  type="button" data-bs-toggle="modal" data-bs-target="#deleteEmployeeModal" (click)="getFaceToDelete(face)" >Delete</button>
+  </div>
+  </div>
+
+      <!-- Delete Modal -->
+<div class="modal fade" id="deleteEmployeeModal" tabindex="-1" role="dialog" aria-labelledby="deleteModelLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+     <div class="modal-content">
+        <div class="modal-header">
+           <h5 class="modal-title" id="deleteModelLabel">Delete Face Image</h5>
+           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+           </button>
+        </div>
+        <div class="modal-body">
+           <p>Are you sure you want to delete these face image?</p>
+           <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+              <button (click)="onDeleteFace(deleteFace.id!)" class="btn btn-danger" data-bs-dismiss="modal">Yes</button>
+           </div>
+        </div>
+     </div>
+  </div>
+</div>
+</div>
+
+<router-outlet></router-outlet>

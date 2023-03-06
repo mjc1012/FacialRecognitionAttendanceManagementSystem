@@ -1,0 +1,45 @@
+<app-spinner></app-spinner>
+<app-navbar></app-navbar>
+
+<div class="container mt-4">
+<video id="video" autoplay style="display: none;"></video>
+<canvas id="canvas" width="700px" height="700px"></canvas>
+
+<br>
+<p >{{ cameraMessage }}</p>
+<p >{{ cameraWarning }}</p>
+<p >{{ countDownMessage }}</p>
+<br>
+
+<div *ngIf="isQuestionFormDisplayed">
+  <div class="mb-3 form-check" *ngIf="(predictedPerson)">
+    <img id="outputImage" alt="asdf" [src]="snapshotFaceDataUrl">
+    <p>Are You {{predictedPerson.firstName}} {{predictedPerson.lastName}}?</p>
+    <button (click)="wrongPrediction()">No</button>
+  </div>
+</div>
+<div *ngIf="isLoginFormDisplayed">
+  <form #attendanceForm='ngForm' (ngSubmit)="onAttendance(attendanceForm)">
+    <div class="form-group col-12">
+      <label>Id Number</label>
+      <input class="form-control" required ngModel name="employeeIdNumber">
+    </div>
+
+    <div class="form-group col-12">
+      <label>Password</label>
+      <input class="form-control" required type="password" ngModel name="password">
+    </div>
+
+    <div class="form-group col-12">
+      <a href="">Forgot Password</a>
+    </div>
+
+    <div class="form-group col-12">
+      <button [disabled]="!attendanceForm.valid" type="submit" class="btn btn-primary">Login</button>
+      <button type="button" class="btn btn-secondary ml-2">Cancel</button>
+    </div>
+  </form>
+</div>
+
+</div>
+<router-outlet></router-outlet>
