@@ -7,21 +7,38 @@
   <table class="table" *ngIf="employees && employees.length > 0">
     <thead>
       <tr>
-        <th>id</th>
+        <th><button (click)="ToggleFilter()">Filter</button></th>
         <th>profilePicture</th>
         <th>firstName</th>
         <th>middleName</th>
         <th>lastName</th>
         <th>emailAddress</th>
         <th>employeeIdNumber</th>
-        <th>isAdmin</th>
+        <th>Role</th>
         <th>Update Information</th>
+        <th>Get Absences</th>
         <th>Delete</th>
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let employee of employees">
-        <td>{{ employee.id }}</td>
+      <ng-container *ngIf="doFilter">
+        <tr>
+          <td></td>
+          <td></td>
+          <td><input type="text" [(ngModel)]="firstNameFilter"></td>
+          <td><input type="text" [(ngModel)]="middleNameFilter"></td>
+          <td><input type="text" [(ngModel)]="lastNameFilter"></td>
+          <td><input type="text" [(ngModel)]="emailFilter"></td>
+          <td><input type="text" [(ngModel)]="idNumberFilter"></td>
+          <td><input type="text" [(ngModel)]="roleFilter"></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+      </ng-container>
+
+      <tr *ngFor="let employee of filteredEmployees">
+        <td></td>
         <td><img style="height:80px;width:100px;" [src]="imageBaseUrl+employee.profilePictureImageName" alt=""></td>
         <td>{{ employee.firstName }}</td>
         <td>{{ employee.middleName }}</td>
@@ -30,12 +47,42 @@
         <td>{{ employee.employeeIdNumber }}</td>
         <td>{{ employee.employeeRoleName }}</td>
         <td><button  type="button" data-bs-toggle="modal" data-bs-target="#updateEmployeeModal" (click)="getEmployeeToUpdate(employee)">Update Information</button></td>
+        <td><button  type="button" data-bs-toggle="modal" data-bs-target="#GetAbsencesModal" (click)="getEmployeeToGetAbsences(employee)">Get Absences</button></td>
         <td><button  type="button" data-bs-toggle="modal" data-bs-target="#deleteEmployeeModal" (click)="getEmployeeToDelete(employee)">Delete</button></td>
       </tr>
     </tbody>
   </table>
 
-
+ <div class="modal fade" id="GetAbsencesModal" tabindex="-1" role="dialog" aria-labelledby="GetAbsencesModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+       <div class="modal-header">
+          <h5 class="modal-title" id="GetAbsencesModalLabel">Get Absences</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+          </button>
+       </div>
+       <div class="modal-body">
+        <form #dateForm="ngForm" (ngSubmit)="getUserAbsencesCount(dateForm)">
+          <div class="form-group">
+            <label for="timeLog">startDate</label>
+            <input type="date" [(ngModel)]="startDate" name="startDate" id="startDate" required>
+         </div>
+         <div class="form-group">
+          <label for="timeLog">endDate</label>
+          <input type="date" [(ngModel)]="endDate" name="endDate" id="endDate" required>
+       </div>
+          <div class="modal-footer">
+            <button [disabled]="dateForm.invalid || startDate >= endDate" type="submit" class="btn btn-primary">Save changes</button>
+          </div>
+          </form>
+       </div>
+       <div *ngIf="dateSubmitted">
+        <p >Number of Missed Time In: {{ missedTimeInCount }}</p>
+        <p >Number of Missed Time Out: {{ missedTimeOutCount }}</p>
+       </div>
+    </div>
+  </div>
+  </div>
 
   <!-- Add Employee Modal -->
   <div class="modal fade" id="addEmployeeModal" tabindex="-1" role="dialog" aria-labelledby="addEmployeeModalLabel" aria-hidden="true">
@@ -54,7 +101,7 @@
             </div>
             <div class="form-group">
                <label for="middleName">middleName</label>
-               <input type="text" ngModel name="middleName" class="form-control" id="middleName" placeholder="middleName" required>
+               <input type="text" ngModel name="middleName" class="form-control" id="middleName" placeholder="middleName">
             </div>
             <div class="form-group">
                <label for="lastName">lastName</label>
@@ -104,7 +151,7 @@
             </div>
             <div class="form-group">
                <label for="middleName">middleName</label>
-               <input type="text" ngModel="{{ editEmployee.middleName}}" name="middleName" class="form-control" id="middleName" placeholder="middleName" required>
+               <input type="text" ngModel="{{ editEmployee.middleName}}" name="middleName" class="form-control" id="middleName" placeholder="middleName">
             </div>
             <div class="form-group">
                <label for="lastName">lastName</label>

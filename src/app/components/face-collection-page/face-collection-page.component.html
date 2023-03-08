@@ -4,6 +4,7 @@
 <div class="container mt-4">
 <video id="video" autoplay style="display: none;"></video>
 <canvas id="canvas" width="700px" height="700px"></canvas>
+<canvas id="faceCanvas" width="300px" height="300px" style="display: none;"></canvas>
 
 <br>
 <p >{{ cameraMessage }}</p>
@@ -13,13 +14,12 @@
 
 <div *ngIf="isExpressionDisplayed">
   <img id="expressionSample" [src]="faceExpressionImageBaseUrl+faceExpressionImageFile">
-  <p>{{expressionMessage}}</p>
 </div>
+<p>{{expressionMessage}}</p>
 
 <div *ngIf="isQuestionFormDisplayed">
     <img id="outputImage" [src]="dataUrl">
     <p>Are you satisfied with this picture?</p>
-    <button (click)="saveFace()">Yes</button>
     <button (click)="startVideoAgain()">No</button>
 </div>
 
@@ -52,3 +52,4 @@
 </div>
 
 <router-outlet></router-outlet>
+

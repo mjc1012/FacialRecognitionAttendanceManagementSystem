@@ -23,6 +23,9 @@ export class FaceRecognitionPageComponent implements OnInit {
   video: any;
   canvas: any;
   ctx: any;
+
+  faceCanvas: any;
+  faceCtx: any;
   roi: any;
   cameraMessage: string = "";
     cameraWarning: string = "";
@@ -48,6 +51,9 @@ export class FaceRecognitionPageComponent implements OnInit {
     this.video = document.getElementById("video");
     this.canvas = document.getElementById("canvas");
     this.ctx = this.canvas.getContext("2d");
+    this.faceCanvas = document.getElementById("faceCanvas");
+
+    this.faceCtx = this.faceCanvas.getContext("2d");
 
     const main = async () => {
       if(!this.isPaused) {
@@ -271,6 +277,15 @@ export class FaceRecognitionPageComponent implements OnInit {
     this.predictedPerson = {}
   }
 
+  onCancelForm(){
+    this.wrongPredictionNum = 0;
+        this.isPaused = false;
+        this.isQuestionFormDisplayed = false;
+        this.isLoginFormDisplayed = false;
+        this.snapshotFaceBase64String = ""
+        this.predictedPerson = {}
+  }
+
   async extractFaceFromBox (inputImage: any, box: any) {
     const regionsToExtract = [
         new faceapi.Rect( box.x, box.y , box.width , box.height)
@@ -286,34 +301,31 @@ export class FaceRecognitionPageComponent implements OnInit {
     {
         faceImages.forEach(cnv =>{
           this.snapshotFaceDataUrl = cnv.toDataURL();
-          this.snapshotFaceBase64String = cnv.toDataURL().replace('data:', '').replace(/^.+,/, '')
-
-          const faceToRecognize = {
-            base64String:  this.snapshotFaceBase64String,
-            loggedTime: this.formatDate(new Date())
-          }
-
-        this.saveFace(faceToRecognize)
         })
+
+      this.faceCtx.drawImage(inputImage, 0, 0, this.faceCanvas.width, this.faceCanvas.width)
+
+      this.snapshotFaceBase64String = this.faceCanvas.toDataURL().replace('data:', '').replace(/^.+,/, '')
+      console.log(this.snapshotFaceDataUrl)
+      const faceToRecognize = {
+        base64String:  this.snapshotFaceBase64String,
+        loggedTime: this.formatDate(new Date())
+      }
+
+    this.saveFace(faceToRecognize)
     }
   }
 
 padTo2Digits(num: number) {
   return num.toString().padStart(2, '0');
 }
-addDays(date: Date, days: number) {
-  const copy = new Date(Number(date))
-  copy.setDate(date.getDate() + days)
-  return copy
-}
-formatDate(d: Date) {
-  const date = this.addDays(d, 5);
+formatDate(date: Date) {
   return (
     [
-      this.padTo2Digits(date.getDate()),
-      this.padTo2Digits(date.getMonth() + 1),
       date.getFullYear(),
-    ].join('/') +
+      this.padTo2Digits(date.getMonth() + 1),
+      this.padTo2Digits(date.getDate()),
+    ].join('-') +
     ' ' +
     [
       this.padTo2Digits(date.getHours()),

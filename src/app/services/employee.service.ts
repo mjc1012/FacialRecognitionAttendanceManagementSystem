@@ -45,4 +45,10 @@ export class EmployeeService {
     return this.http.put<ResponseApi>(url, formData);
   }
 
+  public recordAbsences(date: string): Observable<ResponseApi>{
+    let today = new Date();
+    const url = `${this.baseUrl}/date/${date}`;
+    return this.http.get<ResponseApi>(url);
+  }
+
 }

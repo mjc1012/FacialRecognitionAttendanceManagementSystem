@@ -41,7 +41,6 @@ export class LoginPageComponent implements OnInit {
           this.userStoreService.setRoleForStore(tokenPayload.role);
           this.AuthenticatePerson(person);
           this.onNavigate(tokenPayload.role);
-          this.toast.success({detail: "SUCCESS", summary: data.message, duration: 3000})
         }
         else{
           this.toast.error({detail: "ERROR", summary: data.message, duration: 3000})
@@ -57,6 +56,12 @@ export class LoginPageComponent implements OnInit {
   AuthenticatePerson(person: Person){
     this.personService.authenticate(person).subscribe({
       next:(data) =>{
+        if(data.status){
+        this.toast.success({detail: "SUCCESS", summary: data.message, duration: 3000})
+        }
+        else{
+          this.toast.error({detail: "ERROR", summary: data.message, duration: 3000})
+        }
         this.personService.storeToken(data.value.accessToken);
           this.personService.storeRefreshToken(data.value.refreshToken);
         console.log(data.message)

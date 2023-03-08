@@ -9,6 +9,7 @@ import { Person } from 'src/app/models/person';
 import { UserStoreService } from 'src/app/services/user-store.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { PersonService } from 'src/app/services/person.service';
+import { NgToastService } from 'ng-angular-popup';
 
 @Component({
   selector: 'app-face-collection-page',
@@ -17,10 +18,13 @@ import { PersonService } from 'src/app/services/person.service';
 })
 export class FaceCollectionPageComponent implements OnInit {
 
-    constructor(private faceExpressionService: FaceExpressionService, private faceToTrainService: FaceToTrainService, private authService: AuthService, private userStoreService: UserStoreService, private personService: PersonService) { }
+    constructor(private faceToTrainService: FaceToTrainService,
+      private toast: NgToastService, private authService: AuthService, private userStoreService: UserStoreService, private personService: PersonService) { }
 
     video: any;
     canvas: any;
+    faceCanvas: any;
+    faceCtx: any;
     ctx: any;
     roi: any;
     expressionMessage: string = "";
@@ -41,12 +45,12 @@ export class FaceCollectionPageComponent implements OnInit {
     faceToTrain!: FaceToTrain;
     facesToTrain: FaceToTrain[] = [];
     utterance = new SpeechSynthesisUtterance()
-    faceExpressions!: FaceExpression[]
     faceExpressionImageBaseUrl: string =environment.FaceRecongtionAPIBaseUrl+'FaceExpression/';
     faceToTrainImageBaseUrl: string =environment.FaceRecongtionAPIBaseUrl+'FaceDataset/';
     currentPerson: Person = {};
     deleteFace!: FaceToTrain;
     public idNumber: string = ""
+    isFacesComplete: boolean = false
 
     async ngOnInit() {
 
@@ -74,8 +78,10 @@ export class FaceCollectionPageComponent implements OnInit {
       this.video = document.getElementById("video");
       this.canvas = document.getElementById("canvas");
       this.ctx = this.canvas.getContext("2d");
+      this.faceCanvas = document.getElementById("faceCanvas");
 
-      this.getFaceExpressions();
+      this.faceCtx = this.faceCanvas.getContext("2d");
+
 
 
       const main = async () => {
@@ -122,11 +128,11 @@ export class FaceCollectionPageComponent implements OnInit {
             this.isExpressionDisplayed = true
             this.currentExpression = data.value
             this.faceExpressionImageFile = this.currentExpression.imageFile;
-            console.log(this.currentExpression.name)
             this.expressionMessage = "Please follow this expression: " + this.currentExpression.name;
           }else{
             this.isExpressionDisplayed = false
             this.expressionMessage = "Face Collection Complete"
+            this.isFacesComplete = true;
           }
 
           this.getFacesToTrain();
@@ -157,21 +163,7 @@ export class FaceCollectionPageComponent implements OnInit {
     }
 
 
-    getFaceExpressions(){
-      this.faceExpressionService.getAll().subscribe({
-        next:(data) =>{
-          if(data.status){
-            this.faceExpressions = data.value
-          }else{
-            this.faceExpressions = []
-          }
-          console.log(data.message)
-        },
-        error:(e)=>{
-          console.log(e);
-        }
-      });
-    }
+
 
     getFaceToDelete(face: FaceToTrain){
       this.deleteFace = face
@@ -181,8 +173,12 @@ export class FaceCollectionPageComponent implements OnInit {
       this.faceToTrainService.delete(id).subscribe({
         next:(data) =>{
           if(data.status){
-            this.getFacesToTrain();
             this.getMissingExpression();
+            this.isFacesComplete = false
+            this.toast.success({detail: "SUCCESS", summary: data.message, duration: 3000})
+          }
+          else{
+            this.toast.error({detail: "ERROR", summary: data.message, duration: 3000})
           }
           console.log(data.message)
         },
@@ -218,9 +214,12 @@ export class FaceCollectionPageComponent implements OnInit {
       this.faceToTrainService.add(this.faceToTrain).subscribe({
         next:(data) =>{
           if(data.status){
-            this.getFacesToTrain();
             this.getMissingExpression();
-          }
+        this.toast.success({detail: "SUCCESS", summary: data.message, duration: 3000})
+        }
+        else{
+          this.toast.error({detail: "ERROR", summary: data.message, duration: 3000})
+        }
           this.isQuestionFormDisplayed = false
           this.isPaused = false
           console.log(data.message)
@@ -241,7 +240,7 @@ export class FaceCollectionPageComponent implements OnInit {
       let seconds = 3
       let counter = seconds
       setInterval(() =>{
-        if(this.faceDetected  &&   !this.isPaused){
+        if(this.faceDetected  &&   !this.isPaused && !this.isFacesComplete){
           this.playText("Please stay still")
           if(this.previousText == "Please stay still" && !speechSynthesis.speaking){
             this.countDownMessage = "Please stay still for "+counter+" seconds";
@@ -254,6 +253,23 @@ export class FaceCollectionPageComponent implements OnInit {
                 this.isQuestionFormDisplayed = true;
             }
           }
+        }
+        else if(this.isQuestionFormDisplayed && !speechSynthesis.speaking &&  this.isPaused && this.previousText != ""){
+          this.playText("Are you satisfied with this picture?")
+          if(this.previousText == "Are you satisfied with this picture?" && !speechSynthesis.speaking){
+              this.countDownMessage = "Form will be gone in  "+counter+" seconds";
+              counter--;
+              if (counter < 0) {
+                counter = seconds;
+                this.countDownMessage = "";
+                this.saveFace();
+                this.previousText = ""
+              }
+
+          }
+        }
+        else if(this.faceDetected &&   !this.isPaused  &&  this.isFacesComplete){
+          this.playText("You already completed the necessary faces")
         }
         else{
             this.countDownMessage = ''
@@ -276,14 +292,14 @@ export class FaceCollectionPageComponent implements OnInit {
       {
           faceImages.forEach(cnv =>{
             this.dataUrl = cnv.toDataURL();
-            this.faceToTrain = {
-              base64String:  cnv.toDataURL().replace('data:', '').replace(/^.+,/, ''),
-              faceExpressionId: this.currentExpression.id!,
-              personId: this.currentPerson.id!
-            }
-
-
           })
+
+          this.faceCtx.drawImage(inputImage, 0, 0, this.faceCanvas.width, this.faceCanvas.width)
+          this.faceToTrain = {
+            base64String:  this.faceCanvas.toDataURL().replace('data:', '').replace(/^.+,/, ''),
+            faceExpressionId: this.currentExpression.id!,
+            personId: this.currentPerson.id!
+          }
       }
     }
 

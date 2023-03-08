@@ -2,15 +2,34 @@
 <app-navbar></app-navbar>
 
 <div class="container my-5" id="main-container">
+  <div>
+    <form #filterDateForm="ngForm">
+      <div class="form-group">
+        <label for="timeLog">startDate</label>
+        <input type="date" [(ngModel)]="startDate" name="startDate" id="startDate" required>
+     </div>
+     <div class="form-group">
+      <label for="timeLog">endDate</label>
+      <input type="date" [(ngModel)]="endDate" name="endDate" id="endDate" required>
+   </div>
+
+      <div >
+        <button (click)="removeDateFilter()">Remove Filter</button>
+        <button (click)="getLogsBetweenDates(filterDateForm)" [disabled]="filterDateForm.invalid || startDate >= endDate">Save changes</button>
+      </div>
+      </form>
+  </div>
   <h1 class="mb-3">Attendance Logs</h1>
   <button   type="button" data-bs-toggle="modal" data-bs-target="#addLogModal">Add Attendance Log</button>
+  <button (click)="RecordAbsences()">Record Absences</button>
   <table class="table" *ngIf="logs && logs.length > 0">
     <thead>
       <tr>
-        <th>id</th>
+        <th><button (click)="ToggleFilter()">Filter</button></th>
         <th>Image</th>
         <th>timeLog</th>
         <th>attendanceLogTypeName</th>
+        <th>attendanceLogStatusName</th>
         <th>employeeIdNumber</th>
         <th>employeeName</th>
         <th>Update</th>
@@ -18,11 +37,25 @@
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let log of logs">
-        <td>{{ log.id }}</td>
+      <ng-container *ngIf="doFilter">
+        <tr>
+          <td></td>
+          <td></td>
+          <td><input type="date" [(ngModel)]="timeLogFilter"></td>
+          <td><input type="text" [(ngModel)]="attendanceLogTypeNameFilter"></td>
+          <td><input type="text" [(ngModel)]="attendanceLogStatusNameFilter"></td>
+          <td><input type="text" [(ngModel)]="employeeIdNumberFilter"></td>
+          <td><input type="text" [(ngModel)]="employeeNameFilter"></td>
+          <td></td>
+          <td></td>
+        </tr>
+      </ng-container>
+      <tr *ngFor="let log of filteredLogs">
+        <td></td>
         <td><img style="height:80px;width:100px;" [src]="imageBaseUrl+log.imageName" alt=""></td>
         <td>{{ log.timeLog }}</td>
         <td>{{ log.attendanceLogTypeName }}</td>
+        <td>{{ log.attendanceLogStatusName }}</td>
         <td>{{ log.employeeIdNumber }}</td>
         <td>{{ log.employeeName }}</td>
         <td><button  type="button" data-bs-toggle="modal" data-bs-target="#updateLogModal" (click)="getLogToUpdate(log)">Update</button></td>
@@ -53,13 +86,22 @@
                 <option value="TimeOut">TimeOut</option>
               </select>
            </div>
-            <div class="form-group">
-               <label for="employeeIdNumber">employeeIdNumber</label>
-               <input type="text" ngModel name="employeeIdNumber" class="form-control" id="employeeIdNumber" placeholder="employeeIdNumber" required>
-            </div>
+           <div class="form-group">
+            <label for="attendanceLogStatusName">attendanceLogStatusName</label>
+            <select ngModel name="attendanceLogStatusName" class="form-control" id="attendanceLogStatusName" required>
+              <option value="Absent">Absent</option>
+              <option value="Present">Present</option>
+            </select>
+         </div>
+             <div class="form-group">
+              <label for="employeeIdNumber">employeeIdNumber</label>
+              <select ngModel name="employeeIdNumber" class="form-control" id="employeeIdNumber" required>
+                <option *ngFor="let employee of employees" value="{{ employee.employeeIdNumber }}">{{ employee.employeeIdNumber }}</option>
+              </select>
+           </div>
             <div class="modal-footer">
               <button type="button" id="add-log-form" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button [disabled]="addForm.invalid" type="submit" class="btn btn-primary">Save changes</button>
+              <button [disabled]="addForm.invalid" type="submit" class="btn btn-primary" data-bs-dismiss="modal">Save changes</button>
             </div>
             </form>
          </div>
@@ -90,10 +132,19 @@
               <option value="TimeOut">TimeOut</option>
             </select>
          </div>
+         <div class="form-group">
+          <label for="attendanceLogStatusName">attendanceLogStatusName</label>
+          <select ngModel="{{editLog.attendanceLogStatusName}}" name="attendanceLogStatusName" class="form-control" id="attendanceLogStatusName" required>
+            <option value="Absent">Absent</option>
+            <option value="Present">Present</option>
+          </select>
+       </div>
            <div class="form-group">
-              <label for="employeeIdNumber">employeeIdNumber</label>
-              <input type="text" ngModel="{{editLog.employeeIdNumber }}" name="employeeIdNumber" class="form-control" id="employeeIdNumber" placeholder="employeeIdNumber" required>
-           </div>
+            <label for="employeeIdNumber">employeeIdNumber</label>
+            <select ngModel="{{editLog.employeeIdNumber }}" name="employeeIdNumber" class="form-control" id="employeeIdNumber" required>
+              <option *ngFor="let employee of employees" value="{{ employee.employeeIdNumber }}">{{ employee.employeeIdNumber }}</option>
+            </select>
+         </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
               <button (click)="onUpdateLog(editForm)" [disabled]="editForm.invalid" data-bs-dismiss="modal" class="btn btn-primary" >Save changes</button>
