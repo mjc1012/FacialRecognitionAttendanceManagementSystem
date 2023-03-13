@@ -1,57 +1,85 @@
 <app-spinner></app-spinner>
 <app-navbar></app-navbar>
 
-<div class="container my-5" id="main-container">
-  <div>
-    <form #filterDateForm="ngForm">
-      <div class="form-group">
-        <label for="timeLog">startDate</label>
-        <input type="date" [(ngModel)]="startDate" name="startDate" id="startDate" required>
-     </div>
-     <div class="form-group">
-      <label for="timeLog">endDate</label>
-      <input type="date" [(ngModel)]="endDate" name="endDate" id="endDate" required>
-   </div>
+<div class="app-content">
 
-      <div >
-        <button (click)="removeDateFilter()">Remove Filter</button>
-        <button (click)="getLogsBetweenDates(filterDateForm)" [disabled]="filterDateForm.invalid || startDate >= endDate">Save changes</button>
+  <div class="container my-5" id="main-container">
+    <h1 class="mb-3">Attendance Logs</h1>
+    <div class="card">
+      <div class="card-header row p-5">
+        <form #filterDateForm="ngForm" class="col-lg-12 row">
+          <div class="col-lg-6 my-2">
+            <label for="timeLog">startDate</label>
+            <div class="input-group">
+              <input type="date" class="form-control" [(ngModel)]="startDate" name="startDate" id="startDate" required>
+            </div>
+          </div>
+
+          <div class="col-lg-6 my-2">
+            <label for="timeLog">endDate</label>
+            <div class="input-group">
+              <input type="date" class="form-control" [(ngModel)]="endDate" name="endDate" id="endDate" required>
+            </div>
+          </div>
+          <div class="col-lg-4 d-flex justify-content-center   align-content-center">
+            <div class="form-check form-switch my-3">
+              <input class="form-check-input" type="checkbox" id="filterSwitch" (click)="ToggleFilter()"
+                [(ngModel)]="doFilter">
+              <label class="form-check-label" for="filterSwitch">Activate Search Filters</label>
+            </div>
+          </div>
+          <div class="col-lg-8 my-2 d-flex justify-content-around   align-content-center">
+            <button class="btn btn-sm btn-outline-danger" (click)="removeDateFilter()">Remove
+              Filter</button>
+            <button class="btn btn-sm btn-outline-danger" (click)="getLogsBetweenDates(filterDateForm)"
+              [disabled]="filterDateForm.invalid || startDate >= endDate">Save changes</button>
+          </div>
+
+
+        </form>
+
+
+
+
       </div>
-      </form>
+      <div class=" card-body">
+        <table class="table table-hover table-striped " *ngIf="logs && logs.length > 0">
+          <thead class="table-dark">
+            <tr>
+              <th>Image</th>
+              <th>timeLog</th>
+              <th>attendanceLogTypeName</th>
+              <th>attendanceLogStatusName</th>
+              <th>employeeIdNumber</th>
+              <th>employeeName</th>
+            </tr>
+            <ng-container *ngIf="doFilter">
+              <tr>
+                <th></th>
+                <th><input type="date" [(ngModel)]="timeLogFilter"></th>
+                <th><input type="text" [(ngModel)]="attendanceLogTypeNameFilter"></th>
+                <th><input type="text" [(ngModel)]="attendanceLogStatusNameFilter"></th>
+                <th><input type="text" [(ngModel)]="employeeIdNumberFilter"></th>
+                <th><input type="text" [(ngModel)]="employeeNameFilter"></th>
+              </tr>
+            </ng-container>
+          </thead>
+          <tbody>
+
+            <tr *ngFor="let log of filteredLogs">
+              <td><img style="height:100px;width:100px;" [src]="imageBaseUrl+log.imageName" alt=""></td>
+              <td>{{ log.timeLog }}</td>
+              <td>{{ log.attendanceLogTypeName }}</td>
+              <td>{{ log.attendanceLogStatusName }}</td>
+              <td>{{ log.employeeIdNumber }}</td>
+              <td>{{ log.employeeName }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+
+
   </div>
-  <h1 class="mb-3">Attendance Logs</h1>
-  <table class="table" *ngIf="logs && logs.length > 0">
-    <thead>
-      <tr>
-        <th><button (click)="ToggleFilter()">Filter</button></th>
-        <th>Image</th>
-        <th>timeLog</th>
-        <th>attendanceLogTypeName</th>
-        <th>attendanceLogStatusName</th>
-        <th>employeeIdNumber</th>
-        <th>employeeName</th>
-      </tr>
-    </thead>
-    <tbody>
-      <ng-container *ngIf="doFilter">
-        <tr>
-          <td></td>
-          <td></td>
-          <td><input type="date" [(ngModel)]="timeLogFilter"></td>
-          <td><input type="text" [(ngModel)]="attendanceLogTypeNameFilter"></td>
-          <td><input type="text" [(ngModel)]="attendanceLogStatusNameFilter"></td>
-          <td><input type="text" [(ngModel)]="employeeIdNumberFilter"></td>
-          <td><input type="text" [(ngModel)]="employeeNameFilter"></td>
-        </tr>
-      </ng-container>
-      <tr *ngFor="let log of filteredLogs">
-        <td></td>
-        <td><img style="height:80px;width:100px;" [src]="imageBaseUrl+log.imageName" alt=""></td>
-        <td>{{ log.timeLog }}</td>
-        <td>{{ log.attendanceLogTypeName }}</td>
-        <td>{{ log.attendanceLogStatusName }}</td>
-        <td>{{ log.employeeIdNumber }}</td>
-        <td>{{ log.employeeName }}</td>
-      </tr>
-    </tbody>
-  </table>
+</div>

@@ -8,9 +8,10 @@ export interface Employee{
   employeeRoleName?: string,
   profilePictureImageName?: string,
   password?: string,
-  token?: string,
+  accessToken?: string,
   refreshToken?: string,
   refreshTokenExpiryTime?: Date,
-  imageFile?:File
+  imageFile?:File,
+  toDelete?: boolean
 }
 

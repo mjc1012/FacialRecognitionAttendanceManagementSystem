@@ -5,6 +5,6 @@ export interface AttendanceLog{
   base64String?: string,
   attendanceLogTypeName?: string,
   attendanceLogStatusName?: string,
-  employeeIdNumber: string,
+  employeeIdNumber?: string,
   employeeName?: string
 }

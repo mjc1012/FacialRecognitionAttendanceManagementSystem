@@ -5,7 +5,7 @@ export interface Person{
   lastName?: string,
   validIdNumber?: string,
   password?: string,
-  token?: string,
+  accessToken?: string,
   refreshToken?: string,
   refreshTokenExpiryTime?: Date
 }

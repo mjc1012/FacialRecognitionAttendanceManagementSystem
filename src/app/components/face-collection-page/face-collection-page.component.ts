@@ -189,10 +189,6 @@ export class FaceCollectionPageComponent implements OnInit {
     }
 
     playText(text: any) {
-      if (speechSynthesis.paused && speechSynthesis.speaking) {
-          return speechSynthesis.resume()
-      }
-      if (speechSynthesis.speaking) return
       if (text == this.previousText) return
       this.previousText = text
       this.utterance.text = text

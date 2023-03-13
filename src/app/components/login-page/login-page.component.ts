@@ -34,7 +34,7 @@ export class LoginPageComponent implements OnInit {
     this.authService.login(loginForm.value).subscribe({
       next:(data) =>{
         if(data.status){
-          this.authService.storeToken(data.value.accessToken);
+          this.authService.storeAccessToken(data.value.accessToken);
           this.authService.storeRefreshToken(data.value.refreshToken);
           const tokenPayload = this.authService.decodedToken();
           this.userStoreService.setIdNumberForStore(tokenPayload.name);
@@ -62,7 +62,7 @@ export class LoginPageComponent implements OnInit {
         else{
           this.toast.error({detail: "ERROR", summary: data.message, duration: 3000})
         }
-        this.personService.storeToken(data.value.accessToken);
+        this.personService.storeAccessToken(data.value.accessToken);
           this.personService.storeRefreshToken(data.value.refreshToken);
         console.log(data.message)
       },

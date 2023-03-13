@@ -1,5 +1,3 @@
-
-
 <app-spinner></app-spinner>
 
 <div class="mb-5">
@@ -13,47 +11,57 @@
         <div class="border border-rounded py-5 d-flex justify-content-center align-content-center">
           <video id="video" autoplay style="display: none;"></video>
           <canvas id="canvas" width="700px" height="700px"></canvas>
-<canvas id="faceCanvas" width="300px" height="300px" style="display: none;"></canvas>
+          <canvas id="faceCanvas" width="300px" height="300px" style="display: none;"></canvas>
         </div>
       </div>
       <div class="col-md-6 row d-flex justify-content-center align-content-around">
-        <div class="col-lg-12 my-5">
-          <h4 class="col-md-12 text-center">{{ cameraMessage }}{{ cameraWarning }}<span
-              *ngIf="!isQuestionFormDisplayed">{{ countDownMessage }}</span></h4>
-          <div *ngIf="isQuestionFormDisplayed">
-            <div class="mb-3 form-check row d-flex align-content-center" *ngIf="(predictedPerson)">
-              <div class="col-md-6">
-                <img id="outputImage" alt="asdf" [src]="snapshotFaceDataUrl">
-              </div>
-              <div class="col-md-6 flex justify-content-around">
-                <h4>Is this you,{{predictedPerson.firstName}} {{predictedPerson.lastName}}?</h4>
-                <h5>{{ countDownMessage }}</h5>
-                <button class="btn btn-danger" (click)="wrongPrediction()">No</button>
-              </div>
+        <div class="col-lg-6 my-5">
+          <h4 class="col-md-12 text-center">{{ cameraMessage }}{{ cameraWarning }}
+            <span *ngIf="!isQuestionFormDisplayed">{{ countDownMessage }}</span>
+          </h4>
+          <div *ngIf="isQuestionFormDisplayed" class="card">
+            <div class="card-body justify-content-center align-content-center" *ngIf="(predictedPerson)">
+              <img id="outputImage" class="p-5" alt="asdf" [src]="snapshotFaceDataUrl" style="border-radius: 25%;">
+            </div>
+            <div class="card-footer bg-dark flex justify-content-center text-center align-content-center p-5">
+              <h4 class="text-white">Is this you?</h4>
+              <h3 class="my-2 text-white">{{predictedPerson.firstName}} {{predictedPerson.lastName}}?</h3>
+              <h5>{{ countDownMessage }}</h5>
+              <button class="btn btn-light btn-lg" (click)="wrongPrediction()">No</button>
             </div>
           </div>
-        </div>
-        <div *ngIf="isLoginFormDisplayed">
-          <form #attendanceForm='ngForm' (ngSubmit)="onAttendance(attendanceForm)">
-            <div class="form-group col-md-4">
-              <label>Id Number</label>
-              <input class="form-control" required ngModel name="employeeIdNumber">
-            </div>
+          <div *ngIf="isLoginFormDisplayed" class="card p-5 form-row input-group">
+            <form #attendanceForm='ngForm' (ngSubmit)="onAttendance(attendanceForm)">
+              <h3 class="my-3">Log in with Credentials</h3>
+              <div class="col-lg-12 my-2">
+                <label for="employeeIdNumber">Id Number</label>
+                <div class="input-group">
+                  <input class="form-control" required ngModel name="employeeIdNumber">
+                </div>
+              </div>
 
-            <div class="form-group col-md-4">
-              <label>Password</label>
-              <input class="form-control" required type="password" ngModel name="password">
-            </div>
+              <div class="col-lg-12 my-2">
+                <label for="password">Password</label>
+                <div class="input-group">
+                  <input class="form-control" required type="password" ngModel name="password">
+                </div>
+              </div>
 
-            <div class="form-group col-md-4">
-              <a href="">Forgot Password</a>
-            </div>
 
-            <div class="form-group col-md-4">
-              <button [disabled]="!attendanceForm.valid" type="submit" class="btn btn-primary">Login</button>
-              <button type="button" class="btn btn-secondary ml-2" (click)="onCancelForm()">Cancel</button>
-            </div>
-          </form>
+              <div class="input-group col-md-4 my-3">
+                <button class="btn btn-outline-primary btn-md" href="">Forgot Password</button>
+              </div>
+
+              <div class="col-md-12 row d-flex justify-content-center align-content-center">
+                <button [disabled]="!attendanceForm.valid" type="submit"
+                  class="btn btn-primary m-3 col-md-5 ">Login</button>
+                <button type="button" class="btn btn-secondary m-3 col-md-5" (click)="onCancelForm()">Cancel</button>
+              </div>
+            </form>
+          </div>
+
+
+
         </div>
 
 

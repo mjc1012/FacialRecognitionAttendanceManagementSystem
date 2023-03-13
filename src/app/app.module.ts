@@ -19,7 +19,6 @@ import { AccountPageComponent } from './components/account-page/account-page.com
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { ResetPasswordPageComponent } from './components/reset-password-page/reset-password-page.component';
 import { UserAttendancePageComponent } from './components/user-attendance-page/user-attendance-page.component';
-import { TrainModelComponent } from './components/train-model/train-model.component';
 
 @NgModule({
   declarations: [
@@ -33,8 +32,7 @@ import { TrainModelComponent } from './components/train-model/train-model.compon
     SpinnerComponent,
     AccountPageComponent,
     ResetPasswordPageComponent,
-    UserAttendancePageComponent,
-    TrainModelComponent
+    UserAttendancePageComponent
   ],
   imports: [
     BrowserModule,

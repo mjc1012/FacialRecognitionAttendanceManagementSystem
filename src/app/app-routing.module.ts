@@ -7,7 +7,6 @@ import { FaceCollectionPageComponent } from './components/face-collection-page/f
 import { FaceRecognitionPageComponent } from './components/face-recognition-page/face-recognition-page.component';
 import { LoginPageComponent } from './components/login-page/login-page.component';
 import { ResetPasswordPageComponent } from './components/reset-password-page/reset-password-page.component';
-import { TrainModelComponent } from './components/train-model/train-model.component';
 import { UserAttendancePageComponent } from './components/user-attendance-page/user-attendance-page.component';
 import { AdminGuard } from './guards/admin.guard';
 import { AuthGuard } from './guards/auth.guard';
@@ -41,11 +40,6 @@ const routes: Routes = [
   {
     path: 'attendance-log-list',
     component: AttendancePageComponent,
-    canActivate: [AdminGuard]
-  },
-  {
-    path: 'train-model',
-    component: TrainModelComponent,
     canActivate: [AdminGuard]
   },
   {

@@ -99,6 +99,7 @@ export class FaceRecognitionPageComponent implements OnInit {
     if(this.wrongPredictionNum < 2){
       this.cameraWarning = "Please try again"
       this.playText("Please try again")
+      console.log(this.previousText)
       this.isPaused = false;
       this.isQuestionFormDisplayed = false;
     }
@@ -118,7 +119,6 @@ export class FaceRecognitionPageComponent implements OnInit {
             timeLog: this.formatDate(new Date()),
             employeeIdNumber: data.value.employeeIdNumber,
           }
-          console.log(attendancelog)
           this.onAddLog(attendancelog)
         }
         console.log(data.message)
@@ -148,10 +148,6 @@ export class FaceRecognitionPageComponent implements OnInit {
   }
 
   playText(text: any) {
-    if (speechSynthesis.paused && speechSynthesis.speaking) {
-        return speechSynthesis.resume()
-    }
-    if (speechSynthesis.speaking) return
     if (text == this.previousText) return
     this.previousText = text
     this.utterance.text = text
@@ -258,7 +254,6 @@ export class FaceRecognitionPageComponent implements OnInit {
     this.attendanceLogService.add(attendancelog).subscribe({
       next:(data) =>{
         if(data.status){
-          console.log(data.value)
           this.playText("Good morning" + data.value.employeeName)
         }
         else{
@@ -306,7 +301,6 @@ export class FaceRecognitionPageComponent implements OnInit {
       this.faceCtx.drawImage(inputImage, 0, 0, this.faceCanvas.width, this.faceCanvas.width)
 
       this.snapshotFaceBase64String = this.faceCanvas.toDataURL().replace('data:', '').replace(/^.+,/, '')
-      console.log(this.snapshotFaceDataUrl)
       const faceToRecognize = {
         base64String:  this.snapshotFaceBase64String,
         loggedTime: this.formatDate(new Date())

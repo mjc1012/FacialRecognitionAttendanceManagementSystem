@@ -28,12 +28,12 @@ export class AuthService {
     return this.http.post<ResponseApi>(url, request);
   }
 
-  storeToken(tokenValue: string){
-    localStorage.setItem('token', tokenValue);
+  storeAccessToken(tokenValue: string){
+    localStorage.setItem('accessToken', tokenValue);
   }
 
-  getToken(){
-    return localStorage.getItem('token');
+  getAccessToken(){
+    return localStorage.getItem('accessToken');
   }
 
 
@@ -46,7 +46,7 @@ export class AuthService {
   }
 
   isLoggedIn(): boolean{
-    return !!localStorage.getItem('token');
+    return !!localStorage.getItem('accessToken');
   }
 
   logout(){
@@ -55,8 +55,8 @@ export class AuthService {
 
   decodedToken(){
     const jwtHelper = new JwtHelperService();
-    const token = this.getToken()!;
-    return jwtHelper.decodeToken(token);
+    const accessToken = this.getAccessToken()!;
+    return jwtHelper.decodeToken(accessToken);
   }
 
   getIdNumberFromToken(){

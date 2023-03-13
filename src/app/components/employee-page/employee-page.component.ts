@@ -6,6 +6,7 @@ import { Employee } from 'src/app/models/employee';
 import { Person } from 'src/app/models/person';
 import { AttendanceLogService } from 'src/app/services/attendance-log.service';
 import { EmployeeService } from 'src/app/services/employee.service';
+import { FaceRecognitionService } from 'src/app/services/face-recognition.service';
 import { PersonService } from 'src/app/services/person.service';
 import { environment } from 'src/environments/environment';
 
@@ -32,16 +33,31 @@ export class EmployeePageComponent implements OnInit {
   missedTimeInCount: number = 0
   missedTimeOutCount: number = 0
   dateSubmitted: boolean = false
+  deleteAll = false
 
   public userLogs: AttendanceLog[] = [];
   public deleteEmployee: Employee = {}
   imageBaseUrl=environment.AttendaceManagementSystemAPIBaseUrl+'profilepictures/';
 
-  constructor(private employeeService: EmployeeService, private personService: PersonService,private toast: NgToastService, private attendanceLogService: AttendanceLogService) { }
+  constructor(private employeeService: EmployeeService, private personService: PersonService,private toast: NgToastService, private attendanceLogService: AttendanceLogService, private faceRecognitionService: FaceRecognitionService) { }
 
   ngOnInit(): void {
     this.getEmployees()
   }
+
+  OnTrainModel(){
+    this.faceRecognitionService.trainModel().subscribe({
+      next:(data) =>{
+        if(data.status){
+        }
+        console.log(data.message)
+      },
+      error:(e)=>{
+        console.log(e);
+      }
+    });
+  }
+
 
   ToggleFilter(){
     this.doFilter = !this.doFilter
@@ -117,6 +133,18 @@ export class EmployeePageComponent implements OnInit {
         ((this._idNumberFilter === "")? true : employee.employeeIdNumber?.toLowerCase() === this._idNumberFilter.toLowerCase())
       })
     }
+  }
+
+  selectAllForDelete(){
+    this.deleteAll = !this.deleteAll
+    this.filteredEmployees.forEach((employee) =>{
+      employee.toDelete = this.deleteAll
+    })
+  }
+
+  DeleteEmployees(){
+    const employeesToDelete = this.filteredEmployees.filter(employee => employee.toDelete == true).map(employee => employee.employeeIdNumber)
+    console.log(employeesToDelete)
   }
 
     public getEmployees(): void {

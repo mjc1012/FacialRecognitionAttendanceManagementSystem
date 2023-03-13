@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { DeleteRange } from '../models/deleteRange';
 import { Employee } from '../models/employee';
 import { ResponseApi } from '../models/response-api';
 @Injectable({
@@ -33,6 +34,11 @@ export class EmployeeService {
   public deleteEmployee(id: number): Observable<ResponseApi>{
     const url = `${this.baseUrl}/${id}`;
     return this.http.delete<ResponseApi>(url);
+  }
+
+  public deleteEmployees(request: DeleteRange): Observable<ResponseApi>{
+    const url = `${this.baseUrl}`;
+    return this.http.put<ResponseApi>(url, request);
   }
 
   public updatePassword(request: Employee): Observable<ResponseApi>{

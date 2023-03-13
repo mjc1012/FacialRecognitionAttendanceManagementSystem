@@ -1,15 +1,15 @@
 <app-spinner></app-spinner>
 <app-navbar></app-navbar>
-
-<div class="row">
-  <div class="col-6 m-auto">
-    <div class="card m-auto">
-      <div class="card-header">
+<div class="app-content row d-flex justiy-content-center align-content-center">
+  <div class="col-lg-6 my-5" style="padding: 20vh 20vh">
+    <div class="card">
+      <div class="card-header bg-black text-white">
         <h3>Login</h3>
       </div>
       <div class="card-body">
         <form #loginForm='ngForm' (ngSubmit)="onLogin(loginForm)">
           <div class="form-group col-12">
+
             <label>Id Number</label>
             <input class="form-control" required ngModel name="employeeIdNumber">
           </div>
@@ -19,13 +19,15 @@
             <input class="form-control" required type="password" ngModel name="password">
           </div>
 
+          <!-- this right here is for the button -->
           <div class="form-group col-12">
-            <a  type="button" data-bs-toggle="modal" data-bs-target="#emailModal">Forgot Password</a>
+            <a type="button" data-bs-toggle="modal" data-bs-target="#emailModal">Forgot Password</a>
           </div>
 
-          <div class="form-group col-12">
-            <button [disabled]="!loginForm.valid" type="submit" class="btn btn-primary">Login</button>
-            <button type="button" class="btn btn-secondary ml-2">Cancel</button>
+          <div class="col-md-12 d-flex justify-content-end align-content-center">
+            <button [disabled]="!loginForm.valid" type="submit" class="btn btn-md btn-primary mr-3">Login</button>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <button type="button" class="btn btn-md btn-secondary">Cancel</button>
           </div>
         </form>
       </div>
@@ -33,28 +35,32 @@
   </div>
 </div>
 
-<div class="modal fade" id="emailModal" tabindex="-1" role="dialog" aria-labelledby="emailModalLabel" aria-hidden="true">
+<div class="modal fade" id="emailModal" tabindex="-1" role="dialog" aria-labelledby="emailModalLabel"
+  aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
-       <div class="modal-header">
+      <div class="modal-header">
         <h5 class="modal-title" id="emailModalLabel">Forgot Your Password? Enter Email</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-          </button>
-       </div>
-       <div class="modal-body">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+        </button>
+      </div>
+      <div class="modal-body">
         <form #emailForm="ngForm">
 
           <div class="form-group">
             <label for="emailAddress">emailAddress</label>
-            <input type="text" [(ngModel)]="resetPasswordEmail" (ngModelChange)="checkValidEmail($event)" name="emailAddress" class="form-control" id="emailAddress" required>
-         </div>
+            <input type="text" [(ngModel)]="resetPasswordEmail" (ngModelChange)="checkValidEmail($event)"
+              name="emailAddress" class="form-control" id="emailAddress" required>
+          </div>
 
           <div class="modal-footer">
-            <button type="button" id="add-employee-form" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button (click)="onForgotPassword()" [disabled]="!isValidEmail" data-bs-dismiss="modal" class="btn btn-primary" >Save changes</button>
+            <button type="button" id="add-employee-form" class="btn btn-secondary"
+              data-bs-dismiss="modal">Close</button>
+            <button (click)="onForgotPassword()" [disabled]="!isValidEmail" data-bs-dismiss="modal"
+              class="btn btn-primary">Save changes</button>
           </div>
-          </form>
-       </div>
+        </form>
+      </div>
     </div>
   </div>
-  </div>
+</div>

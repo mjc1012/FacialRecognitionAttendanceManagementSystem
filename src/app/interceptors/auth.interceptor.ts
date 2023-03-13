@@ -22,15 +22,15 @@ export class AuthInterceptor implements HttpInterceptor {
 
   handleUnauthorizedTokenAttendanceApi(req: HttpRequest<any>, next: HttpHandler){
     const token = {
-      accessToken:  this.authService.getToken()!,
+      accessToken:  this.authService.getAccessToken()!,
       refreshToken: this.authService.getRefreshToken()!
     }
     return this.authService.renewToken(token).pipe(
       switchMap((data: ResponseApi)=>{
         this.authService.storeRefreshToken(data.value.refreshToken)
-        this.authService.storeToken(data.value.accessToken)
+        this.authService.storeAccessToken(data.value.accessToken)
         req = req.clone({
-          setHeaders: {Authorization:`Bearer ${this.authService.getToken()}`}
+          setHeaders: {Authorization:`Bearer ${this.authService.getAccessToken()}`}
         })
         return next.handle(req);
       }),
@@ -46,16 +46,16 @@ export class AuthInterceptor implements HttpInterceptor {
 
   handleUnauthorizedTokenFaceApi(req: HttpRequest<any>, next: HttpHandler){
     const secondaryToken = {
-      accessToken:  this.personService.getToken()!,
+      accessToken:  this.personService.getAccessToken()!,
       refreshToken: this.personService.getRefreshToken()!
     }
     return this.personService.renewToken(secondaryToken).pipe(
       switchMap((data: ResponseApi)=>{
         this.personService.storeRefreshToken(data.value.refreshToken)
-        this.personService.storeToken(data.value.accessToken)
+        this.personService.storeAccessToken(data.value.accessToken)
 
         req = req.clone({
-          setHeaders: {Authorization:`Bearer ${this.personService.getToken()}`}
+          setHeaders: {Authorization:`Bearer ${this.personService.getAccessToken()}`}
         })
 
         console.log(req.headers)
@@ -73,7 +73,7 @@ export class AuthInterceptor implements HttpInterceptor {
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     console.log('caught')
-    const myToken = this.authService.getToken();
+    const myToken = this.authService.getAccessToken();
     if(myToken){
       request = request.clone({
         setHeaders: {Authorization:`Bearer ${myToken}`}

@@ -47,12 +47,12 @@ export class PersonService {
     return this.http.post<ResponseApi>(url, request);
   }
 
-  storeToken(tokenValue: string){
-    localStorage.setItem('secondary-token', tokenValue);
+  storeAccessToken(tokenValue: string){
+    localStorage.setItem('secondary-accessToken', tokenValue);
   }
 
-  getToken(){
-    return localStorage.getItem('secondary-token');
+  getAccessToken(){
+    return localStorage.getItem('secondary-accessToken');
   }
 
 
