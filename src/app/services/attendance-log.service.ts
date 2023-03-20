@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { AttendanceLog } from '../models/attendancelog';
+import { DeleteRange } from '../models/deleteRange';
 import { ResponseApi } from '../models/response-api';
 
 @Injectable({
@@ -17,8 +18,8 @@ export class AttendanceLogService {
     return this.http.get<ResponseApi>(this.baseUrl);
   }
 
-  public getAllForUser(idNumber: string): Observable<ResponseApi>{
-    const url = `${this.baseUrl}/${idNumber}`;
+  public getAllForUser(pairId: string): Observable<ResponseApi>{
+    const url = `${this.baseUrl}/${pairId}`;
     return this.http.get<ResponseApi>(url);
   }
 
@@ -33,5 +34,10 @@ export class AttendanceLogService {
   public delete(id: number): Observable<ResponseApi>{
     const url = `${this.baseUrl}/${id}`;
     return this.http.delete<ResponseApi>(url);
+  }
+
+  public deleteLogs(request: DeleteRange): Observable<ResponseApi>{
+    const url = `${this.baseUrl}/delete-logs`;
+    return this.http.put<ResponseApi>(url, request);
   }
 }

@@ -18,7 +18,7 @@ import { environment } from 'src/environments/environment';
   styleUrls: ['./account-page.component.css']
 })
 export class AccountPageComponent implements OnInit {
-  public idNumber: string = "";
+  public pairId: string = "";
   imageFile?:File;
   public employee: Employee = { };
   imageBaseUrl=environment.AttendaceManagementSystemAPIBaseUrl+'profilepictures/';
@@ -26,25 +26,37 @@ export class AccountPageComponent implements OnInit {
   endDate!: Date
   missedTimeInCount: number = 0
   missedTimeOutCount: number = 0
+  lateTimeInCount = 0
+  earlyTimeOutCount = 0
   dateSubmitted: boolean = false
   public userLogs: AttendanceLog[] = [];
   public absencesEmployee: Employee = {}
+  newPassword = ""
+  samePassword = false
   constructor(private employeeService: EmployeeService, private personService: PersonService, private authService: AuthService, private userStoreService: UserStoreService, private toast: NgToastService,
     private attendanceLogService: AttendanceLogService, private router: Router) { }
 
 
 
   ngOnInit(): void {
-    this.userStoreService.getIdNumberFromStore().subscribe(val=>{
-      const idNumberFromToken = this.authService.getIdNumberFromToken();
-      this.idNumber = val || idNumberFromToken
+    this.userStoreService.getPairIdFromStore().subscribe(val=>{
+      const pairIdFromToken = this.authService.getPairIdFromToken();
+      this.pairId = val || pairIdFromToken
     })
 
     this.getEmployee()
   }
 
+  set password(value: string){
+    this.newPassword = value
+  }
+
+  checkPassword(value: string){
+      this.samePassword = value === this.newPassword
+  }
+
     public getEmployee(): void {
-      this.employeeService.getEmployee(this.idNumber).subscribe({
+      this.employeeService.getEmployee(this.pairId).subscribe({
         next:(data) =>{
           if(data.status){
             this.employee = data.value
@@ -57,6 +69,7 @@ export class AccountPageComponent implements OnInit {
               employeeIdNumber: "",
               employeeRoleName: ""
             }
+            this.toast.error({detail: "ERROR", summary: data.message, duration: 2000})
           }
         },
         error:(e)=>{
@@ -69,17 +82,17 @@ export class AccountPageComponent implements OnInit {
       const person: Person = {
         firstName: editForm.value.firstName,
         middleName: editForm.value.middleName,
-        lastName: editForm.value.lastName,
-        validIdNumber: editForm.value.employeeIdNumber
+        lastName: editForm.value.lastName
       }
-      console.log(person)
+
       this.employeeService.updateEmployee(editForm.value).subscribe({
         next:(data) =>{
           if(data.status){
+            person.pairId = data.value.pairId
             this.onUpdatePerson(person);
           }
           else{
-            this.toast.error({detail: "ERROR", summary: data.message, duration: 3000})
+            this.toast.error({detail: "ERROR", summary: data.message, duration: 2000})
           }
           console.log(data.message)
         },
@@ -94,10 +107,10 @@ export class AccountPageComponent implements OnInit {
         next:(data) =>{
           if(data.status){
           this.getEmployee();
-          this.toast.success({detail: "SUCCESS", summary: data.message, duration: 3000})
+          this.toast.success({detail: "SUCCESS", summary: data.message, duration: 2000})
           }
           else{
-            this.toast.error({detail: "ERROR", summary: data.message, duration: 3000})
+            this.toast.error({detail: "ERROR", summary: data.message, duration: 2000})
           }
         },
         error:(e)=>{
@@ -108,7 +121,7 @@ export class AccountPageComponent implements OnInit {
 
     public onUpdatePassword(editPasswordForm: NgForm): void {
       const person: Person = {
-        validIdNumber: editPasswordForm.value.employeeIdNumber,
+        pairId: this.employee.pairId,
         password: editPasswordForm.value.password,
       }
       this.employeeService.updatePassword(editPasswordForm.value).subscribe({
@@ -117,7 +130,7 @@ export class AccountPageComponent implements OnInit {
             this.onUpdateFaceApiPassword(person);
           }
           else{
-            this.toast.error({detail: "ERROR", summary: data.message, duration: 3000})
+            this.toast.error({detail: "ERROR", summary: data.message, duration: 2000})
           }
           console.log(data.message)
         },
@@ -134,10 +147,10 @@ export class AccountPageComponent implements OnInit {
           if(data.status){
           this.getEmployee();
 
-          this.toast.success({detail: "SUCCESS", summary: data.message, duration: 3000})
+          this.toast.success({detail: "SUCCESS", summary: data.message, duration: 2000})
           }
           else{
-            this.toast.error({detail: "ERROR", summary: data.message, duration: 3000})
+            this.toast.error({detail: "ERROR", summary: data.message, duration: 2000})
           }
           console.log(data.message)
         },
@@ -161,10 +174,10 @@ export class AccountPageComponent implements OnInit {
           if(data.status){
           this.getEmployee();
 
-          this.toast.success({detail: "SUCCESS", summary: data.message, duration: 3000})
+          this.toast.success({detail: "SUCCESS", summary: data.message, duration: 2000})
           }
           else{
-            this.toast.error({detail: "ERROR", summary: data.message, duration: 3000})
+            this.toast.error({detail: "ERROR", summary: data.message, duration: 2000})
           }
         },
         error:(e)=>{
@@ -178,10 +191,10 @@ export class AccountPageComponent implements OnInit {
       this.employeeService.deleteEmployee(employee.id!).subscribe({
         next:(data) =>{
           if(data.status){
-            this.onDeletePerson(employee.employeeIdNumber!);
+            this.onDeletePerson(employee.pairId!);
           }
           else{
-            this.toast.error({detail: "ERROR", summary: data.message, duration: 3000})
+            this.toast.error({detail: "ERROR", summary: data.message, duration: 2000})
           }
           console.log(data.message)
         },
@@ -191,16 +204,16 @@ export class AccountPageComponent implements OnInit {
       });
     }
 
-    public onDeletePerson(validIdNumber: string): void{
-      this.personService.deletePerson(validIdNumber).subscribe({
+    public onDeletePerson(pairId: string): void{
+      this.personService.deletePerson(pairId).subscribe({
         next:(data) =>{
           if(data.status){
           this.logout()
           this.router.navigate(['login'])
-          this.toast.success({detail: "SUCCESS", summary: data.message, duration: 3000})
+          this.toast.success({detail: "SUCCESS", summary: data.message, duration: 2000})
           }
           else{
-            this.toast.error({detail: "ERROR", summary: data.message, duration: 3000})
+            this.toast.error({detail: "ERROR", summary: data.message, duration: 2000})
           }
         },
         error:(e)=>{
@@ -218,19 +231,30 @@ export class AccountPageComponent implements OnInit {
     public getUserAbsencesCount(DateForm: NgForm): void {
       var startDate = new Date(DateForm.value.startDate)
       var endDate = new Date(DateForm.value.endDate)
-      this.attendanceLogService.getAllForUser(this.absencesEmployee.employeeIdNumber!).subscribe({
+      this.attendanceLogService.getAllForUser(this.absencesEmployee.pairId!).subscribe({
         next:(data) =>{
           if(data.status){
-            var TimeInLogs = data.value.filter((item: any) => {
+            var AbsentTimeIn = data.value.filter((item: AttendanceLog) => {
               var d = new Date(item.timeLog.split(" ")[0])
               return d.getTime() >= startDate.getTime() && d.getTime() <= endDate.getTime() && item.attendanceLogTypeName == "TimeIn" && item.attendanceLogStatusName == "Absent"
           });
-          var TimeOutLogs = data.value.filter((item: any) => {
+          var AbsentTimeOut = data.value.filter((item: AttendanceLog) => {
             var d = new Date(item.timeLog.split(" ")[0])
             return d.getTime() >= startDate.getTime() && d.getTime() <= endDate.getTime() && item.attendanceLogTypeName == "TimeOut" && item.attendanceLogStatusName == "Absent"
         });
-          this.missedTimeInCount = TimeInLogs.length
-          this.missedTimeOutCount = TimeOutLogs.length
+        var LateTimeIn = data.value.filter((item: AttendanceLog) => {
+          var d = new Date(item.timeLog.split(" ")[0])
+          return d.getTime() >= startDate.getTime() && d.getTime() <= endDate.getTime() && item.attendanceLogTypeName == "TimeIn" && item.attendanceLogStateName == "Late"
+        });
+        var EarlyTimeOut = data.value.filter((item: AttendanceLog) => {
+          var d = new Date(item.timeLog.split(" ")[0])
+          return d.getTime() >= startDate.getTime() && d.getTime() <= endDate.getTime() && item.attendanceLogTypeName == "TimeOut" && item.attendanceLogStateName == "Early"
+        });
+
+        this.missedTimeInCount = AbsentTimeIn.length
+        this.missedTimeOutCount = AbsentTimeOut.length
+        this.lateTimeInCount = LateTimeIn.length
+        this.earlyTimeOutCount = EarlyTimeOut.length
           this.dateSubmitted = true
           }
           else{

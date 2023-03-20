@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
+import { NgToastService } from 'ng-angular-popup';
 import { AttendanceLog } from 'src/app/models/attendancelog';
+import { DeleteRange } from 'src/app/models/deleteRange';
 import { Employee } from 'src/app/models/employee';
 import { AttendanceLogService } from 'src/app/services/attendance-log.service';
 import { EmployeeService } from 'src/app/services/employee.service';
@@ -29,18 +31,56 @@ export class AttendancePageComponent implements OnInit {
   _timeLogFilter: string = ""
   _attendanceLogTypeNameFilter: string = ""
   _employeeIdNumberFilter: string = ""
-  _employeeNameFilter: string = ""
   _attendanceLogStatusNameFilter: string = ""
+  _attendanceLogStateNameFilter: string = ""
+  _firstNameFilter: string = ""
+  _middleNameFilter: string = ""
+  _lastNameFilter: string = ""
   public doFilter: boolean = false
   startDate!: Date
   endDate!: Date
   employees: Employee[] = []
+  deleteAll = false
+  canDeleteLogs = false
 
-  constructor(private attendanceLogService: AttendanceLogService, private employeeService: EmployeeService) { }
+  constructor(private attendanceLogService: AttendanceLogService, private employeeService: EmployeeService, private toast: NgToastService) { }
 
   ngOnInit(): void {
     this.getLogs()
-    this.getEmployees()
+  }
+
+  checkToDelete(){
+    this.canDeleteLogs = this.filteredLogs.some(log => log.toDelete === true)
+  }
+
+
+  selectAllForDelete(){
+    this.deleteAll = !this.deleteAll
+    this.filteredLogs.forEach((log) =>{
+      log.toDelete = this.deleteAll
+    })
+    this.canDeleteLogs = this.filteredLogs.some(log => log.toDelete === true)
+  }
+
+  onDeleteLogs(){
+    const ids = this.filteredLogs.filter(log => log.toDelete == true).map(log => log.id?.toString())
+    const deleteRange: DeleteRange = {
+      ids: ids
+    }
+    this.attendanceLogService.deleteLogs(deleteRange).subscribe({
+      next:(data) =>{
+        if(data.status){
+          this.getLogs();
+          this.toast.success({detail: "SUCCESS", summary: data.message, duration: 2000})
+        }else{
+          this.toast.error({detail: "ERROR", summary: data.message, duration: 2000})
+        }
+        console.log(data.message)
+      },
+      error:(e)=>{
+        console.log(e);
+      }
+    });
   }
 
   public getEmployees(): void {
@@ -51,6 +91,7 @@ export class AttendancePageComponent implements OnInit {
 
         }else{
           this.employees = []
+          this.toast.error({detail: "ERROR", summary: data.message, duration: 2000})
         }
         console.log(data.message)
       },
@@ -91,15 +132,6 @@ export class AttendancePageComponent implements OnInit {
     this.filteredLogs = this.filterLogsByValue()
   }
 
-  get employeeNameFilter(){
-    return this._employeeNameFilter
-  }
-
-  set employeeNameFilter(value: string){
-    this._employeeNameFilter = value
-    this.filteredLogs = this.filterLogsByValue()
-  }
-
   get attendanceLogStatusNameFilter(){
     return this._attendanceLogStatusNameFilter
   }
@@ -109,8 +141,45 @@ export class AttendancePageComponent implements OnInit {
     this.filteredLogs = this.filterLogsByValue()
   }
 
+  get attendanceLogStateNameFilter(){
+    return this._attendanceLogStateNameFilter
+  }
+
+  set attendanceLogStateNameFilter(value: string){
+    this._attendanceLogStateNameFilter = value
+    this.filteredLogs = this.filterLogsByValue()
+  }
+
+  get firstNameFilter(){
+    return this._firstNameFilter
+  }
+
+  set firstNameFilter(value: string){
+    this._firstNameFilter = value
+    this.filteredLogs = this.filterLogsByValue()
+  }
+
+  get middleNameFilter(){
+    return this._middleNameFilter
+  }
+
+  set middleNameFilter(value: string){
+    this._middleNameFilter = value
+    this.filteredLogs = this.filterLogsByValue()
+  }
+
+  get lastNameFilter(){
+    return this._lastNameFilter
+  }
+
+  set lastNameFilter(value: string){
+    this._lastNameFilter = value
+    this.filteredLogs = this.filterLogsByValue()
+  }
+
   filterLogsByValue(){
-    if(this._timeLogFilter === "" && this._attendanceLogTypeNameFilter === "" && this._employeeIdNumberFilter === "" && this._employeeNameFilter === "" && this._attendanceLogStatusNameFilter === ""){
+    if(this._timeLogFilter === "" && this._attendanceLogTypeNameFilter === "" && this._employeeIdNumberFilter === "" &&  this._attendanceLogStatusNameFilter === "" &&
+    this._firstNameFilter === "" && this._middleNameFilter === "" && this._lastNameFilter === "" &&  this._attendanceLogStateNameFilter === "" ){
       return this.logs;
     }
     else{
@@ -118,8 +187,11 @@ export class AttendancePageComponent implements OnInit {
         return ((this._timeLogFilter === "")? true : log.timeLog?.split(" ")[0].toLowerCase() === this._timeLogFilter.toLowerCase()) &&
         ((this._attendanceLogTypeNameFilter === "")? true : log.attendanceLogTypeName?.toLowerCase() === this._attendanceLogTypeNameFilter.toLowerCase()) &&
         ((this._employeeIdNumberFilter === "")? true : log.employeeIdNumber?.toLowerCase() === this._employeeIdNumberFilter.toLowerCase()) &&
-        ((this._employeeNameFilter === "")? true : log.employeeName?.toLowerCase() === this._employeeNameFilter.toLowerCase()) &&
-        ((this._attendanceLogStatusNameFilter === "")? true : log.attendanceLogStatusName?.toLowerCase() === this._attendanceLogStatusNameFilter.toLowerCase())
+        ((this._firstNameFilter === "")? true : log.firstName?.toLowerCase() === this._firstNameFilter.toLowerCase()) &&
+        ((this._middleNameFilter === "")? true : log.middleName?.toLowerCase() === this._middleNameFilter.toLowerCase()) &&
+        ((this._lastNameFilter === "")? true : log.lastName?.toLowerCase() === this._lastNameFilter.toLowerCase()) &&
+        ((this._attendanceLogStatusNameFilter === "")? true : log.attendanceLogStatusName?.toLowerCase() === this._attendanceLogStatusNameFilter.toLowerCase()) &&
+        ((this._attendanceLogStateNameFilter === "")? true : log.attendanceLogStateName?.toLowerCase() === this._attendanceLogStateNameFilter.toLowerCase())
       })
     }
   }
@@ -130,6 +202,7 @@ export class AttendancePageComponent implements OnInit {
           if(data.status){
             this.logs = data.value
             this.filteredLogs = this.filterLogsByValue()
+            this.getEmployees()
           }
           else{
             this.logs = []
@@ -142,7 +215,8 @@ export class AttendancePageComponent implements OnInit {
       });
     }
 
-    public removeDateFilter(){
+    public removeDateFilter(filterDateForm: NgForm){
+      filterDateForm.reset()
       this.filteredLogs = this.logs
     }
 
@@ -156,32 +230,42 @@ export class AttendancePageComponent implements OnInit {
     }
 
     public onAddLog(addForm: NgForm): void {
+      addForm.value.timeLog = addForm.value.timeLog.toString().replace("T", " ") + ":00"
       this.attendanceLogService.add(addForm.value).subscribe({
         next:(data) =>{
           if(data.status){
-            console.log(data.message)
             this.getLogs();
-            addForm.reset();
+            this.toast.success({detail: "SUCCESS", summary: data.message, duration: 2000})
+          }else{
+            this.toast.error({detail: "ERROR", summary: data.message, duration: 2000})
           }
+          console.log(data.message)
         },
         error:(e)=>{
           console.log(e);
-          addForm.reset();
         }
       });
+      addForm.reset();
     }
+
+
 
     getLogToUpdate(log: AttendanceLog){
       this.editLog = log
     }
 
     public onUpdateLog(editForm: NgForm): void {
+
+      editForm.value.timeLog = editForm.value.timeLog.toString().replace("T", " ")
       this.attendanceLogService.update(editForm.value).subscribe({
         next:(data) =>{
           if(data.status){
-            console.log(data.message)
             this.getLogs();
+            this.toast.success({detail: "SUCCESS", summary: data.message, duration: 2000})
+          }else{
+            this.toast.error({detail: "ERROR", summary: data.message, duration: 2000})
           }
+          console.log(data.message)
         },
         error:(e)=>{
           console.log(e);
@@ -197,9 +281,12 @@ export class AttendancePageComponent implements OnInit {
       this.attendanceLogService.delete(id).subscribe({
         next:(data) =>{
           if(data.status){
-            console.log(data.message)
             this.getLogs();
+            this.toast.success({detail: "SUCCESS", summary: data.message, duration: 2000})
+          }else{
+            this.toast.error({detail: "ERROR", summary: data.message, duration: 2000})
           }
+          console.log(data.message)
         },
         error:(e)=>{
           console.log(e);
@@ -212,6 +299,9 @@ export class AttendancePageComponent implements OnInit {
         next:(data) =>{
           if(data.status){
             this.getLogs();
+            this.toast.success({detail: "SUCCESS", summary: data.message, duration: 2000})
+          }else{
+            this.toast.error({detail: "ERROR", summary: data.message, duration: 2000})
           }
           console.log(data.message)
         },

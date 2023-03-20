@@ -25,25 +25,24 @@ export class LoginPageComponent implements OnInit {
   }
 
   onLogin(loginForm: NgForm){
-
-    const person: Person = {
-      validIdNumber: loginForm.value.employeeIdNumber,
-      password: loginForm.value.password
-    }
-
+    const password = loginForm.value.password
     this.authService.login(loginForm.value).subscribe({
       next:(data) =>{
         if(data.status){
           this.authService.storeAccessToken(data.value.accessToken);
           this.authService.storeRefreshToken(data.value.refreshToken);
           const tokenPayload = this.authService.decodedToken();
-          this.userStoreService.setIdNumberForStore(tokenPayload.name);
+          this.userStoreService.setPairIdForStore(tokenPayload.name);
           this.userStoreService.setRoleForStore(tokenPayload.role);
+          const person: Person = {
+            pairId: tokenPayload.name,
+            password: password
+          }
           this.AuthenticatePerson(person);
           this.onNavigate(tokenPayload.role);
         }
         else{
-          this.toast.error({detail: "ERROR", summary: data.message, duration: 3000})
+          this.toast.error({detail: "ERROR", summary: data.message, duration: 2000})
         }
       },
       error:(e)=>{
@@ -57,10 +56,10 @@ export class LoginPageComponent implements OnInit {
     this.personService.authenticate(person).subscribe({
       next:(data) =>{
         if(data.status){
-        this.toast.success({detail: "SUCCESS", summary: data.message, duration: 3000})
+        this.toast.success({detail: "SUCCESS", summary: data.message, duration: 2000})
         }
         else{
-          this.toast.error({detail: "ERROR", summary: data.message, duration: 3000})
+          this.toast.error({detail: "ERROR", summary: data.message, duration: 2000})
         }
         this.personService.storeAccessToken(data.value.accessToken);
           this.personService.storeRefreshToken(data.value.refreshToken);
@@ -92,11 +91,11 @@ export class LoginPageComponent implements OnInit {
     this.resetPasswordService.sendResetPasswordLink(this.resetPasswordEmail).subscribe({
       next:(data) =>{
         this.resetPasswordEmail = ""
-        if(data.status)this.toast.success({detail: "SUCCESS", summary: data.message, duration: 3000})
-        else this.toast.error({detail: "ERROR", summary: data.message, duration: 3000})
+        if(data.status)this.toast.success({detail: "SUCCESS", summary: data.message, duration: 2000})
+        else this.toast.error({detail: "ERROR", summary: data.message, duration: 2000})
       },
       error:(e)=>{
-        this.toast.error({detail: "ERROR", summary: e, duration: 3000})
+        this.toast.error({detail: "ERROR", summary: e, duration: 2000})
       }
     });
   }

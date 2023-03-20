@@ -37,7 +37,7 @@ export class EmployeeService {
   }
 
   public deleteEmployees(request: DeleteRange): Observable<ResponseApi>{
-    const url = `${this.baseUrl}`;
+    const url = `${this.baseUrl}/delete-employees`;
     return this.http.put<ResponseApi>(url, request);
   }
 
@@ -47,7 +47,7 @@ export class EmployeeService {
   }
 
   public updateProfilePicture(formData: FormData): Observable<ResponseApi>{
-    const url = `${this.baseUrl}/profile-pic`;
+    const url = `${this.baseUrl}/profile-picture`;
     return this.http.put<ResponseApi>(url, formData);
   }
 

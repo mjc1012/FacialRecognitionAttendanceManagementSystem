@@ -25,10 +25,9 @@
           </div>
 
           <div class="col-lg-4 my-2 d-flex justify-content-around   align-content-center">
-            <button class="btn btn-sm btn-outline-danger" (click)="removeDateFilter()">Remove
-              Filter</button>
+            <button class="btn btn-sm btn-outline-danger" [disabled]="filterDateForm.invalid" (click)="removeDateFilter(filterDateForm)">Remove Date Filter</button>
             <button class="btn btn-sm btn-outline-danger" (click)="getLogsBetweenDates(filterDateForm)"
-              [disabled]="filterDateForm.invalid || startDate >= endDate">Save changes</button>
+              [disabled]="filterDateForm.invalid || startDate > endDate">Save changes</button>
           </div>
 
         </form>
@@ -40,7 +39,8 @@
           </div>
           <button class="btn btn-sm btn-outline-danger  mx-3" type="button" data-bs-toggle="modal"
             data-bs-target="#addLogModal">Add Attendance Log</button>
-          <button class="btn btn-sm btn-outline-danger  mx-3" (click)="RecordAbsences()">Record Absences</button>
+          <button type="button" class="btn btn-sm btn-outline-danger  mx-3" data-bs-toggle="modal"
+                  data-bs-target="#onRecordAbsencesModal">Record Absences Today</button>
         </div>
 
 
@@ -52,25 +52,32 @@
             <thead class="table-dark">
               <tr>
                 <!-- <th><button (click)="ToggleFilter()">Filter</button></th> -->
-                <th><button >Delete Attendance Logs</button></th>
+                <th><button type="button" class="btn btn-sm btn-outline-danger  mx-3" data-bs-toggle="modal"
+                  data-bs-target="#onDeleteLogsModal" [disabled]="!canDeleteLogs">Delete Attendance Logs</button></th>
                 <th>Image</th>
                 <th>timeLog</th>
                 <th>attendanceLogTypeName</th>
+                <th>attendanceLogStateName</th>
                 <th>attendanceLogStatusName</th>
                 <th>employeeIdNumber</th>
-                <th>employeeName</th>
+                <th>firstName</th>
+                  <th>middleName</th>
+                  <th>lastName</th>
                 <th>Update</th>
                 <th>Delete</th>
               </tr>
               <ng-container *ngIf="doFilter">
-                <tr><td><button >Select All</button></td>
-                  <td></td>
+                <tr>
+                  <td><button (click)="selectAllForDelete()"><ng-container *ngIf="deleteAll">Deselect All</ng-container><ng-container *ngIf="!deleteAll">Select All</ng-container></button></td>
                   <td></td>
                   <td><input type="date" [(ngModel)]="timeLogFilter"></td>
                   <td><input type="text" [(ngModel)]="attendanceLogTypeNameFilter"></td>
+                  <td><input type="text" [(ngModel)]="attendanceLogStateNameFilter"></td>
                   <td><input type="text" [(ngModel)]="attendanceLogStatusNameFilter"></td>
                   <td><input type="text" [(ngModel)]="employeeIdNumberFilter"></td>
-                  <td><input type="text" [(ngModel)]="employeeNameFilter"></td>
+                  <td><input type="text" [(ngModel)]="firstNameFilter"></td>
+                     <td><input type="text" [(ngModel)]="middleNameFilter"></td>
+                     <td><input type="text" [(ngModel)]="lastNameFilter"></td>
                   <td></td>
                   <td></td>
                 </tr>
@@ -80,13 +87,16 @@
 
               <tr *ngFor="let log of filteredLogs">
 
-                <td><input type="checkbox" name="" id=""></td>
+                <td><input type="checkbox" [(ngModel)]="log.toDelete" (ngModelChange)="checkToDelete()" name="" id=""></td>
                 <td><img style="height:80px;width:100px;" [src]="imageBaseUrl+log.imageName" alt=""></td>
                 <td>{{ log.timeLog }}</td>
                 <td>{{ log.attendanceLogTypeName }}</td>
+                <td>{{ log.attendanceLogStateName }}</td>
                 <td>{{ log.attendanceLogStatusName }}</td>
                 <td>{{ log.employeeIdNumber }}</td>
-                <td>{{ log.employeeName }}</td>
+                <td>{{ log.firstName }}</td>
+                  <td>{{ log.middleName }}</td>
+                  <td>{{ log.lastName }}</td>
                 <td><button type="button" data-bs-toggle="modal" data-bs-target="#updateLogModal"
                     (click)="getLogToUpdate(log)">Update</button></td>
                 <td><button type="button" data-bs-toggle="modal" data-bs-target="#deleteLogModal"
@@ -99,7 +109,45 @@
       </div>
     </div>
 
+    <div class="modal fade" id="onDeleteLogsModal" tabindex="-1" role="dialog"
+    aria-labelledby="onDeleteLogsModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+       <div class="modal-content">
+          <div class="modal-header">
+             <h5 class="modal-title" id="onDeleteLogsModalLabel">Delete Records</h5>
+             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+             </button>
+          </div>
+          <div class="modal-body">
+             <p>Are you sure you want to continue?</p>
+             <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+                <button (click)="onDeleteLogs()" class="btn btn-danger" data-bs-dismiss="modal">Yes</button>
+             </div>
+          </div>
+       </div>
+    </div>
+ </div>
 
+    <div class="modal fade" id="onRecordAbsencesModal" tabindex="-1" role="dialog"
+    aria-labelledby="onRecordAbsencesModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+       <div class="modal-content">
+          <div class="modal-header">
+             <h5 class="modal-title" id="onRecordAbsencesModalLabel">Record Absences Today</h5>
+             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+             </button>
+          </div>
+          <div class="modal-body">
+             <p>Are you sure you want to continue?</p>
+             <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+                <button (click)="RecordAbsences()" class="btn btn-danger" data-bs-dismiss="modal">Yes</button>
+             </div>
+          </div>
+       </div>
+    </div>
+ </div>
 
 
     <!-- Add Log Modal -->
@@ -116,24 +164,24 @@
             <form #addForm="ngForm" (ngSubmit)="onAddLog(addForm)">
               <div class="form-group">
                 <label for="timeLog">timeLog</label>
-                <input type="text" ngModel name="timeLog" class="form-control" id="timeLog" placeholder="timeLog"
-                  required>
-              </div>
-              <div class="form-group">
-                <label for="attendanceLogTypeName">attendanceLogTypeName</label>
-                <select ngModel name="attendanceLogTypeName" class="form-control" id="attendanceLogTypeName" required>
-                  <option value="TimeIn">TimeIn</option>
-                  <option value="TimeOut">TimeOut</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label for="attendanceLogStatusName">attendanceLogStatusName</label>
-                <select ngModel name="attendanceLogStatusName" class="form-control" id="attendanceLogStatusName"
-                  required>
-                  <option value="Absent">Absent</option>
-                  <option value="Present">Present</option>
-                </select>
-              </div>
+                <input  type="datetime-local" ngModel name="timeLog" class="form-control" id="timeLog"required>
+             </div>
+             <div class="form-group">
+              <label for="attendanceLogTypeName">attendanceLogTypeName</label>
+              <select ngModel name="attendanceLogTypeName" class="form-control"
+                id="attendanceLogTypeName" required>
+                <option value="TimeIn">TimeIn</option>
+                <option value="TimeOut">TimeOut</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="attendanceLogStatusName">attendanceLogStatusName</label>
+              <select ngModel name="attendanceLogStatusName"
+                class="form-control" id="attendanceLogStatusName" required>
+                <option value="Absent">Absent</option>
+                <option value="Present">Present</option>
+              </select>
+            </div>
               <div class="form-group">
                 <label for="employeeIdNumber">employeeIdNumber</label>
                 <select ngModel name="employeeIdNumber" class="form-control" id="employeeIdNumber" required>
@@ -167,9 +215,8 @@
               <input type="hidden" ngModel="{{ editLog.id }}" name="id" id="id" required>
               <div class="form-group">
                 <label for="timeLog">timeLog</label>
-                <input type="text" ngModel="{{editLog.timeLog }}" name="timeLog" class="form-control" id="timeLog"
-                  placeholder="timeLog" required>
-              </div>
+                <input  type="datetime-local" ngModel="{{editLog.timeLog }}" name="timeLog" class="form-control" id="timeLog"required>
+             </div>
               <div class="form-group">
                 <label for="attendanceLogTypeName">attendanceLogTypeName</label>
                 <select ngModel="{{editLog.attendanceLogTypeName }}" name="attendanceLogTypeName" class="form-control"
@@ -225,14 +272,15 @@
         </div>
       </div>
     </div>
-  </div>
 
-</div>
 <!-- Notification for no employees -->
 <div *ngIf="logs?.length == 0" class="col-lg-12 col-md-12 col-xl-12">
   <div class="alert alert-info" role="alert">
     <h4 class="alert-heading">NO ATTENDANCE LOGS!</h4>
     <p>No Attendance logs were found.</p>
+  </div>
+
+</div>
   </div>
 
 </div>

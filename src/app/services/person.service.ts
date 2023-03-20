@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { DeleteRange } from '../models/deleteRange';
 import { Person } from '../models/person';
 import { ResponseApi } from '../models/response-api';
 import { TokenApi } from '../models/token-Api';
@@ -18,8 +19,8 @@ export class PersonService {
     return this.http.get<ResponseApi>(this.baseUrl);
   }
 
-  public getPerson(validIdNumber: string): Observable<ResponseApi>{
-    const url = `${this.baseUrl}/${validIdNumber}`;
+  public getPerson(pairId: string): Observable<ResponseApi>{
+    const url = `${this.baseUrl}/${pairId}`;
     return this.http.get<ResponseApi>(url);
   }
 
@@ -28,13 +29,17 @@ export class PersonService {
   }
 
   public updatePerson(request: Person): Observable<ResponseApi>{
-    const url = `${this.baseUrl}/update-using-valid-id-number`;
-    return this.http.put<ResponseApi>(url, request);
+    return this.http.put<ResponseApi>(this.baseUrl, request);
   }
 
-  public deletePerson(validIdNumber: string): Observable<ResponseApi>{
-    const url = `${this.baseUrl}/use-valid-id-number/${validIdNumber}`;
+  public deletePerson(pairId: string): Observable<ResponseApi>{
+    const url = `${this.baseUrl}/${pairId}`;
     return this.http.delete<ResponseApi>(url);
+  }
+
+  public deletePeople(request: DeleteRange): Observable<ResponseApi>{
+    const url = `${this.baseUrl}/delete-people`;
+    return this.http.put<ResponseApi>(url, request);
   }
 
   public authenticate(request: Person): Observable<ResponseApi>{

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import * as faceapi from 'face-api.js';
+import { NgToastService } from 'ng-angular-popup';
 import { AttendanceLog } from 'src/app/models/attendancelog';
 import { FaceToRecognize } from 'src/app/models/facetorecognize';
 import { Person } from 'src/app/models/person';
@@ -9,6 +10,7 @@ import { AuthService } from 'src/app/services/auth.service';
 import { FaceRecognitionStatusService } from 'src/app/services/face-recognition-status.service';
 import { FaceRecognitionService } from 'src/app/services/face-recognition.service';
 import { FaceToRecognizeService } from 'src/app/services/face-to-recognize.service';
+import { LoaderService } from 'src/app/services/loader.service';
 
 @Component({
   selector: 'app-face-recognition-page',
@@ -18,7 +20,7 @@ import { FaceToRecognizeService } from 'src/app/services/face-to-recognize.servi
 export class FaceRecognitionPageComponent implements OnInit {
 
   constructor(private faceToRecognizeService: FaceToRecognizeService, private faceRecognitionService: FaceRecognitionService, private faceRecognitionStatusService: FaceRecognitionStatusService,
-    private attendanceLogService: AttendanceLogService, private authService: AuthService) { }
+    private attendanceLogService: AttendanceLogService, private authService: AuthService, private toast: NgToastService) { }
 
   video: any;
   canvas: any;
@@ -99,7 +101,6 @@ export class FaceRecognitionPageComponent implements OnInit {
     if(this.wrongPredictionNum < 2){
       this.cameraWarning = "Please try again"
       this.playText("Please try again")
-      console.log(this.previousText)
       this.isPaused = false;
       this.isQuestionFormDisplayed = false;
     }
@@ -107,6 +108,8 @@ export class FaceRecognitionPageComponent implements OnInit {
       this.isPaused = true;
       this.isQuestionFormDisplayed = false;
       this.isLoginFormDisplayed = true;
+      this.cameraWarning = "Please log in with credentials"
+      this.playText("Please log in with credentials")
     }
     this.predictedPerson = {}
   }
@@ -120,6 +123,10 @@ export class FaceRecognitionPageComponent implements OnInit {
             employeeIdNumber: data.value.employeeIdNumber,
           }
           this.onAddLog(attendancelog)
+          this.toast.success({detail: "SUCCESS", summary: data.message, duration: 2000})
+        }
+        else{
+          this.toast.error({detail: "ERROR", summary: data.message, duration: 2000})
         }
         console.log(data.message)
       },
@@ -139,6 +146,14 @@ export class FaceRecognitionPageComponent implements OnInit {
 
     this.faceRecognitionStatusService.add(faceRecognitionStatus).subscribe({
       next:(data) =>{
+        if(isRecognized){
+          const attendancelog : AttendanceLog = {
+            timeLog: this.formatDate(new Date()),
+            base64String: this.snapshotFaceBase64String,
+            pairId: this.predictedPerson.pairId!,
+          }
+          this.onAddLog(attendancelog)
+        }
         console.log(data.message)
       },
       error:(e)=>{
@@ -148,7 +163,7 @@ export class FaceRecognitionPageComponent implements OnInit {
   }
 
   playText(text: any) {
-    if (text == this.previousText) return
+    if (text == this.previousText || speechSynthesis.speaking) return
     this.previousText = text
     this.utterance.text = text
     this.utterance.rate = 1
@@ -190,21 +205,49 @@ export class FaceRecognitionPageComponent implements OnInit {
         if(data.status){
           this.predictedPerson = data.value
         }else{
-          this.predictedPerson = {
-            firstName: "",
-            lastName: "",
-            validIdNumber: ""
+          this.predictedPerson = {}
+          this.snapshotFaceBase64String = ""
+          this.wrongPredictionIsRecent = true
+          this.wrongPredictionNum += 1;
+          if(this.wrongPredictionNum < 2){
+            this.cameraWarning = "Please Try Again"
+            this.playText("Please Try Again")
+            this.isPaused = false;
+            this.isQuestionFormDisplayed = false;
+          }
+          else{
+            this.isPaused = true;
+            this.isQuestionFormDisplayed = false;
+            this.isLoginFormDisplayed = true;
+            this.cameraWarning = "Please log in with credentials"
+      this.playText("Please log in with credentials")
           }
         }
         console.log(data.message)
       },
       error:(e)=>{
         console.log(e);
+        this.snapshotFaceBase64String = ""
+        this.wrongPredictionIsRecent = true
+        this.wrongPredictionNum += 1;
+        if(this.wrongPredictionNum < 2){
+          this.cameraWarning = "Please try again"
+          this.playText("Please try again")
+          this.isPaused = false;
+          this.isQuestionFormDisplayed = false;
+        }
+        else{
+          this.isPaused = true;
+          this.isQuestionFormDisplayed = false;
+          this.isLoginFormDisplayed = true;
+          this.cameraWarning = "Please log in with credentials"
+      this.playText("Please log in with credentials")
+        }
       }
     })
   }
   async countDown () {
-    let seconds = 3
+    let seconds = 1
     let counter = seconds
     setInterval(() =>{
       if(this.faceDetected && !speechSynthesis.speaking  && !this.isPaused && !this.wrongPredictionIsRecent){
@@ -232,12 +275,6 @@ export class FaceRecognitionPageComponent implements OnInit {
               this.countDownMessage = "";
               this.savePrediction(true)
 
-              const attendancelog = {
-                timeLog: this.formatDate(new Date()),
-                base64String: this.snapshotFaceBase64String,
-                employeeIdNumber: this.predictedPerson.validIdNumber!,
-              }
-              this.onAddLog(attendancelog)
             }
           }
         }
@@ -254,7 +291,18 @@ export class FaceRecognitionPageComponent implements OnInit {
     this.attendanceLogService.add(attendancelog).subscribe({
       next:(data) =>{
         if(data.status){
-          this.playText("Good morning" + data.value.employeeName)
+          if(data.value.attendanceLogTypeName == "TimeOut"){
+            this.playText("Good bye" + data.value.firstName + " " + data.value.lastName)
+
+            this.toast.success({detail: "SUCCESS", summary: data.message, duration: 2000})
+          }
+          else if(data.value.attendanceLogTypeName == "TimeIn"){
+            this.toast.success({detail: "SUCCESS", summary: data.message, duration: 2000})
+          this.playText("Good morning" + data.value.firstName + " " + data.value.lastName)
+          }
+          else{
+            this.toast.error({detail: "ERROR", summary: data.message, duration: 2000})
+          }
         }
         else{
         this.playText(data.message)

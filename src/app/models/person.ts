@@ -1,9 +1,9 @@
 export interface Person{
   id?: number,
+  pairId?: string,
   firstName?: string,
   middleName?: string,
   lastName?: string,
-  validIdNumber?: string,
   password?: string,
   accessToken?: string,
   refreshToken?: string,

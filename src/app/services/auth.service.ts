@@ -59,7 +59,7 @@ export class AuthService {
     return jwtHelper.decodeToken(accessToken);
   }
 
-  getIdNumberFromToken(){
+  getPairIdFromToken(){
     if(this.userPayload){
       return this.userPayload.name;
     }

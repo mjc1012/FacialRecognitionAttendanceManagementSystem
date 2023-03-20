@@ -58,7 +58,6 @@ export class AuthInterceptor implements HttpInterceptor {
           setHeaders: {Authorization:`Bearer ${this.personService.getAccessToken()}`}
         })
 
-        console.log(req.headers)
         return next.handle(req);
       }),
       catchError((err)=>{
@@ -72,7 +71,6 @@ export class AuthInterceptor implements HttpInterceptor {
   }
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
-    console.log('caught')
     const myToken = this.authService.getAccessToken();
     if(myToken){
       request = request.clone({

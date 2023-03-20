@@ -14,6 +14,16 @@
         <a class="nav-link active" aria-current="page" href="/face-recognition">Face Recognition</a>
       </li>
 
+
+      <!-- displayed in bothe roles -->
+      <ng-container *ngIf="!isLoggedin()">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="/login">Login</a>
+        </li>
+      </ng-container>
+
+      <ng-container *ngIf="isLoggedin()">
+
       <!-- only displayed when role is admin -->
       <ng-container *ngIf="role === 'Admin' || role === 'User'">
         <li class="nav-item">
@@ -39,15 +49,6 @@
         </li>
       </ng-container>
 
-
-      <!-- displayed in bothe roles -->
-      <ng-container *ngIf="!isLoggedin()">
-        <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="/login">Login</a>
-        </li>
-      </ng-container>
-
-      <ng-container *ngIf="isLoggedin()">
         <li class="nav-item">
           <a class="nav-link active" aria-current="page" href="/login" (click)="logout()">Logout</a>
         </li>

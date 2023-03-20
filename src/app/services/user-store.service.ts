@@ -5,7 +5,7 @@ import { BehaviorSubject } from 'rxjs';
   providedIn: 'root'
 })
 export class UserStoreService {
-  private idNumber$ = new BehaviorSubject<string>("");
+  private pairId$ = new BehaviorSubject<string>("");
   private role$ = new BehaviorSubject<string>("");
   constructor() { }
 
@@ -17,11 +17,11 @@ export class UserStoreService {
     this.role$.next(role);
   }
 
-  public getIdNumberFromStore(){
-    return this.idNumber$.asObservable();
+  public getPairIdFromStore(){
+    return this.pairId$.asObservable();
   }
 
-  public setIdNumberForStore(idNumber: string){
-    this.idNumber$.next(idNumber);
+  public setPairIdForStore(pairId: string){
+    this.pairId$.next(pairId);
   }
 }

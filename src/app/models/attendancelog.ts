@@ -3,8 +3,13 @@ export interface AttendanceLog{
   timeLog: string,
   imageName?: string,
   base64String?: string,
+  attendanceLogStateName?: string,
   attendanceLogTypeName?: string,
   attendanceLogStatusName?: string,
   employeeIdNumber?: string,
-  employeeName?: string
+  pairId?: string,
+  firstName?: string,
+  middleName?: string,
+  lastName?: string,
+  toDelete?: boolean
 }

@@ -18,14 +18,22 @@ import { UserStoreService } from 'src/app/services/user-store.service';
 export class ResetPasswordPageComponent {
   emailToReset!: string;
   emailToken!: string;
+  newPassword = ""
+  samePassword = false
   constructor(private resetPasswordService: ResetPasswordService, private personService: PersonService, private activateRoute: ActivatedRoute, private router: Router, private toast: NgToastService) {
     this.activateRoute.queryParams.subscribe(val=>{
       this.emailToReset = val['email'];
       let uriToken = val['code'];
       this.emailToken = uriToken.replace(/ /g, '+');
-      console.log(this.emailToReset)
-      console.log(this.emailToken)
     })
+  }
+
+  set password(value: string){
+    this.newPassword = value
+  }
+
+  checkPassword(value: string){
+      this.samePassword = value === this.newPassword
   }
 
   public onResetPassword(resetPasswordForm: NgForm): void {
@@ -37,12 +45,13 @@ export class ResetPasswordPageComponent {
       newPassword: newPassword
     }
 
-    console.log(resetPassword)
-
     this.resetPasswordService.resetPassword(resetPassword).subscribe({
       next:(data) =>{
         if(data.status){
-          this.onUpdateFaceApiPassword(data.value.employeeIdNumber, newPassword);
+          this.onUpdateFaceApiPassword(data.value.pairId, newPassword);
+        }
+        else{
+          this.toast.error({detail: "ERROR", summary: data.message, duration: 2000})
         }
         console.log(data.message)
       },
@@ -52,15 +61,20 @@ export class ResetPasswordPageComponent {
     });
   }
 
-  public onUpdateFaceApiPassword(idNumber: string, password: string){
+  public onUpdateFaceApiPassword(pairId: string, password: string){
     const person: Person = {
-      validIdNumber: idNumber,
+      pairId: pairId,
       password: password,
     }
     this.personService.updatePassword(person).subscribe({
       next:(data) =>{
-        this.toast.success({detail: "SUCCESS", summary:"Successfully reseted password", duration: 3000})
+        if(data.status){
+        this.toast.success({detail: "SUCCESS", summary:"Reset Password Successful", duration: 2000})
         this.router.navigate(['login'])
+      }
+      else{
+        this.toast.error({detail: "ERROR", summary: data.message, duration: 2000})
+      }
         console.log(data.message)
       },
       error:(e)=>{

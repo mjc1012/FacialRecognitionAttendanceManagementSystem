@@ -10,6 +10,7 @@ import { UserStoreService } from 'src/app/services/user-store.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { PersonService } from 'src/app/services/person.service';
 import { NgToastService } from 'ng-angular-popup';
+import { EmployeeService } from 'src/app/services/employee.service';
 
 @Component({
   selector: 'app-face-collection-page',
@@ -19,7 +20,7 @@ import { NgToastService } from 'ng-angular-popup';
 export class FaceCollectionPageComponent implements OnInit {
 
     constructor(private faceToTrainService: FaceToTrainService,
-      private toast: NgToastService, private authService: AuthService, private userStoreService: UserStoreService, private personService: PersonService) { }
+      private toast: NgToastService, private authService: AuthService, private userStoreService: UserStoreService, private personService: PersonService, private employeeService: EmployeeService ) { }
 
     video: any;
     canvas: any;
@@ -49,31 +50,19 @@ export class FaceCollectionPageComponent implements OnInit {
     faceToTrainImageBaseUrl: string =environment.FaceRecongtionAPIBaseUrl+'FaceDataset/';
     currentPerson: Person = {};
     deleteFace!: FaceToTrain;
-    public idNumber: string = ""
+    public pairId: string = ""
     isFacesComplete: boolean = false
 
     async ngOnInit() {
 
-      this.userStoreService.getIdNumberFromStore().subscribe(val=>{
-        const idNumberFromToken = this.authService.getIdNumberFromToken()
-        this.idNumber = val || idNumberFromToken;
+      this.userStoreService.getPairIdFromStore().subscribe(val=>{
+        const pairIdFromToken = this.authService.getPairIdFromToken()
+        this.pairId = val || pairIdFromToken;
       })
 
-      this.personService.getPerson(this.idNumber).subscribe({
-        next:(data) =>{
-          if(data.status){
-            this.currentPerson = data.value
+      this.getPerson();
 
-            this.getMissingExpression();
-          }else{
-            this.currentPerson = {}
-          }
-          console.log(data.message)
-        },
-        error:(e)=>{
-          console.log(e);
-        }
-      })
+
 
       this.video = document.getElementById("video");
       this.canvas = document.getElementById("canvas");
@@ -121,6 +110,25 @@ export class FaceCollectionPageComponent implements OnInit {
 
     }
 
+    getPerson(){
+      this.personService.getPerson(this.pairId).subscribe({
+        next:(data) =>{
+          if(data.status){
+            this.currentPerson = data.value
+
+            this.getMissingExpression();
+          }else{
+            this.currentPerson = {}
+          }
+          console.log(data.message)
+        },
+        error:(e)=>{
+          console.log(e);
+        }
+      })
+
+    }
+
     getMissingExpression(){
       this.faceToTrainService.getMissingExpression(this.currentPerson).subscribe({
         next:(data) =>{
@@ -154,6 +162,8 @@ export class FaceCollectionPageComponent implements OnInit {
             this.facesToTrain = []
             this.numOfSavedFaces = 0
           }
+          this.isQuestionFormDisplayed = false
+          this.isPaused = false
           console.log(data.message)
         },
         error:(e)=>{
@@ -175,10 +185,10 @@ export class FaceCollectionPageComponent implements OnInit {
           if(data.status){
             this.getMissingExpression();
             this.isFacesComplete = false
-            this.toast.success({detail: "SUCCESS", summary: data.message, duration: 3000})
+            this.toast.success({detail: "SUCCESS", summary: data.message, duration: 2000})
           }
           else{
-            this.toast.error({detail: "ERROR", summary: data.message, duration: 3000})
+            this.toast.error({detail: "ERROR", summary: data.message, duration: 2000})
           }
           console.log(data.message)
         },
@@ -189,7 +199,7 @@ export class FaceCollectionPageComponent implements OnInit {
     }
 
     playText(text: any) {
-      if (text == this.previousText) return
+      if (text == this.previousText || speechSynthesis.speaking) return
       this.previousText = text
       this.utterance.text = text
       this.utterance.rate = 1
@@ -211,13 +221,11 @@ export class FaceCollectionPageComponent implements OnInit {
         next:(data) =>{
           if(data.status){
             this.getMissingExpression();
-        this.toast.success({detail: "SUCCESS", summary: data.message, duration: 3000})
+        this.toast.success({detail: "SUCCESS", summary: data.message, duration: 2000})
         }
         else{
-          this.toast.error({detail: "ERROR", summary: data.message, duration: 3000})
+          this.toast.error({detail: "ERROR", summary: data.message, duration: 2000})
         }
-          this.isQuestionFormDisplayed = false
-          this.isPaused = false
           console.log(data.message)
         },
         error:(e)=>{
@@ -229,11 +237,13 @@ export class FaceCollectionPageComponent implements OnInit {
     startVideoAgain(){
         this.isQuestionFormDisplayed = false
         this.isPaused = false
+        this.cameraWarning = "Please try again"
+        this.playText("Please try again")
     }
 
 
     async countDown () {
-      let seconds = 3
+      let seconds = 1
       let counter = seconds
       setInterval(() =>{
         if(this.faceDetected  &&   !this.isPaused && !this.isFacesComplete){

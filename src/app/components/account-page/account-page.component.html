@@ -1,187 +1,229 @@
 <app-spinner></app-spinner>
 <app-navbar></app-navbar>
 
-<div class="container my-5" id="main-container">
-  <h1 class="mb-3">Account</h1>
-  <table class="table" *ngIf="employee">
-    <thead>
-      <tr>
-        <th>id</th>
-        <th>profilePicture</th>
-        <th>firstName</th>
-        <th>middleName</th>
-        <th>lastName</th>
-        <th>emailAddress</th>
-        <th>employeeIdNumber</th>
-        <th>isAdmin</th>
-        <th>Update Information</th>
-        <th>Get Absences</th>
-        <th>Update Password</th>
-        <th>Update Profile</th>
-        <th>Delete</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>{{ employee.id }}</td>
-        <td *ngIf="employee.profilePictureImageName" ><img style="height:80px;width:100px;" [src]="imageBaseUrl+employee.profilePictureImageName" alt=""></td>
-        <td>{{ employee.firstName }}</td>
-        <td>{{ employee.middleName }}</td>
-        <td>{{ employee.lastName }}</td>
-        <td>{{ employee.emailAddress }}</td>
-        <td>{{ employee.employeeIdNumber }}</td>
-        <td>{{ employee.employeeRoleName }}</td>
-        <td><button  type="button" data-bs-toggle="modal" data-bs-target="#updateEmployeeModal">Update Information</button></td>
-        <td><button  type="button" data-bs-toggle="modal" data-bs-target="#GetAbsencesModal" (click)="getEmployeeToGetAbsences(employee)">Get Absences</button></td>
-        <td><button  type="button" data-bs-toggle="modal" data-bs-target="#updatePasswordModal">Update Password</button></td>
-        <td><button  type="button" data-bs-toggle="modal" data-bs-target="#updateProfilePictureModal">Update Profile Picture</button></td>
-        <td><button  type="button" data-bs-toggle="modal" data-bs-target="#deleteEmployeeModal">Delete</button></td>
-      </tr>
-    </tbody>
-  </table>
 
-  <div class="modal fade" id="GetAbsencesModal" tabindex="-1" role="dialog" aria-labelledby="GetAbsencesModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-         <div class="modal-header">
-            <h5 class="modal-title" id="GetAbsencesModalLabel">Get Absences</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-            </button>
-         </div>
-         <div class="modal-body">
-          <form #dateForm="ngForm" (ngSubmit)="getUserAbsencesCount(dateForm)">
-            <div class="form-group">
-              <label for="timeLog">startDate</label>
-              <input type="date" [(ngModel)]="startDate" name="startDate" id="startDate" required>
-           </div>
-           <div class="form-group">
-            <label for="timeLog">endDate</label>
-            <input type="date" [(ngModel)]="endDate" name="endDate" id="endDate" required>
-         </div>
-            <div class="modal-footer">
-              <button [disabled]="dateForm.invalid || startDate >= endDate" type="submit" class="btn btn-primary">Save changes</button>
-            </div>
-            </form>
-         </div>
-         <div *ngIf="dateSubmitted">
-          <p >Number of Missed Time In: {{ missedTimeInCount }}</p>
-          <p >Number of Missed Time Out: {{ missedTimeOutCount }}</p>
-         </div>
+<div class="app-content">
+  <div class="card card-shadow col-lg-6 card mx-auto card-rounded" style="min-width: 75vw;">
+      <div
+          class="card-header card-header-rounded-top card-header-shadow bg-dark text-white p-5 d-flex justify-content-end align-content-center">
+          <h1 class="text-center">Welcome, {{ employee.firstName }} {{ employee.middleName }} {{ employee.lastName }}</h1>
       </div>
-    </div>
-    </div>
+      <div class="card-body p-5" style="min-height: 50vh;">
+          <div class="row">
+              <div class="mb-5 col-lg-6 d-flex justify-content-center align-content-center">
+                  <img *ngIf="employee.profilePictureImageName" [src]="imageBaseUrl+employee.profilePictureImageName" alt="Avatar" class="avatar"
+                      style="min-height: 250px; min-width: 250px; background-color: black; color: white;">
+              </div>
+              <div class="col-lg-6 mb-3 row">
+                  <h3 class="col-lg-12 mb-2">User Details</h3>
+                  <h6> <strong> Name: </strong> {{ employee.lastName }}, {{ employee.firstName }} {{ employee.middleName }}</h6>
+                  <h6> <strong> Email: </strong>{{ employee.emailAddress }}</h6>
+                  <h6> <strong> ID Number: </strong>{{ employee.employeeIdNumber }}</h6>
+                  <h6> <strong> Role: </strong>{{ employee.employeeRoleName }}</h6>
+              </div>
+              <div class="col-lg-6 d-flex justify-content-center align-content-center">
+                  <button type="button" class="btn btn-sm btn-outline-primary px-5"
+                  data-bs-toggle="modal" data-bs-target="#updateProfilePictureModal">
+                  <i class="btn-icon-prepend" data-feather="upload"></i>
+                      Upload Photo</button>
+              </div>
+              <div class="col-lg-6 d-flex justify-content-center align-content-center">
+                  <button type="button"
+                  data-bs-toggle="modal"
+                  data-bs-target="#updateEmployeeModal"
+                  class="btn btn-sm btn-outline-warning px-5"> <i class="btn-icon-prepend"
+                          data-feather="edit"></i>
+                      Edit Profile</button>
 
-  <div class="modal fade" id="updatePasswordModal" tabindex="-1" role="dialog" aria-labelledby="updatePasswordModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-         <div class="modal-header">
-          <h5 class="modal-title" id="updatePasswordModalLabel">Edit Employee {{employee.firstName }} Password</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-            </button>
-         </div>
-         <div class="modal-body">
-          <form #editPasswordForm="ngForm">
-            <input type="hidden" ngModel="{{ employee.employeeIdNumber}}" name="employeeIdNumber" id="employeeIdNumber" required>
+              </div>
+              <div class="col-lg-6 d-flex justify-content-center align-content-center">
+                  <button type="button" data-bs-toggle="modal" data-bs-target="#GetAbsencesModal"
+                  (click)="getEmployeeToGetAbsences(employee)"
+                  class="btn btn-sm btn-outline-secondary px-5"> <i class="btn-icon-prepend"
+                          data-feather="calendar"></i>
+                      Get Absence</button>
+              </div>
+              <div class="col-lg-6 d-flex justify-content-center align-content-center">
+                  <button type="button" data-bs-toggle="modal" data-bs-target="#updatePasswordModal"
+                  class="btn btn-sm btn-outline-success px-5"> <i class="btn-icon-prepend"
+                          data-feather="lock"></i>
+                      Update Password</button>
 
-            <div class="form-group">
-              <label for="password">Password</label>
-              <input type="password" ngModel name="password" class="form-control" id="password" required>
-           </div>
+              </div>
+              <div class="col-lg-6 d-flex justify-content-center align-content-center">
+                  <button type="button" data-bs-toggle="modal" data-bs-target="#deleteEmployeeModal"
+                  class="btn btn-sm btn-outline-danger px-5"> <i class="btn-icon-prepend"
+                          data-feather="trash-2"></i>
+                      Delete Profile</button>
+              </div>
 
-            <div class="modal-footer">
-              <button type="button" id="add-employee-form" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button (click)="onUpdatePassword(editPasswordForm)" [disabled]="editPasswordForm.invalid" data-bs-dismiss="modal" class="btn btn-primary" >Save changes</button>
-            </div>
-            </form>
-         </div>
+          </div>
       </div>
-    </div>
-    </div>
-
-  <div class="modal fade" id="updateProfilePictureModal" tabindex="-1" role="dialog" aria-labelledby="updateProfilePictureModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-         <div class="modal-header">
-          <h5 class="modal-title" id="updateProfilePictureModalLabel">Edit Employee {{employee.firstName }} Profile Picture</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-            </button>
-         </div>
-         <div class="modal-body">
-          <form #editProfileForm="ngForm">
-            <input type="hidden" ngModel="{{ employee.employeeIdNumber }}" name="employeeIdNumber" id="employeeIdNumber" required>
-
-            <div class="form-group">
-               <label for="imageFile">ImageFile</label>
-               <input type="file" (change)="onChange($event)" name="imageFile" class="form-control" id="imageFile" required>
-            </div>
-
-            <div class="modal-footer">
-              <button type="button" id="add-employee-form" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button (click)="onUpdateProfilePicture(editProfileForm)" [disabled]="editProfileForm.invalid" data-bs-dismiss="modal" class="btn btn-primary" >Save changes</button>
-            </div>
-            </form>
-         </div>
-      </div>
-    </div>
-    </div>
-
-
-  <div class="modal fade" id="updateEmployeeModal" tabindex="-1" role="dialog" aria-labelledby="employeeEditModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-         <div class="modal-header">
-          <h5 class="modal-title" id="updateEmployeeModalLabel">Edit Employee {{employee.firstName }}</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-            </button>
-         </div>
-         <div class="modal-body">
-          <form #editForm="ngForm">
-            <input type="hidden" ngModel="{{ employee.id }}" name="id" id="id" required>
-            <input type="hidden" ngModel="{{ employee.employeeIdNumber}}" name="employeeIdNumber" id="employeeIdNumber" required>
-            <input type="hidden" ngModel="{{ employee.employeeRoleName}}" name="employeeRoleName" id="employeeRoleName" required>
-            <div class="form-group">
-               <label for="firstName">firstName</label>
-               <input type="text" ngModel="{{ employee.firstName}}" name="firstName" class="form-control" id="firstName" placeholder="firstName" required>
-            </div>
-            <div class="form-group">
-               <label for="middleName">middleName</label>
-               <input type="text" ngModel="{{ employee.middleName}}" name="middleName" class="form-control" id="middleName" placeholder="middleName">
-            </div>
-            <div class="form-group">
-               <label for="lastName">lastName</label>
-               <input type="text" ngModel="{{ employee.lastName}}" name="lastName" class="form-control" id="lastName" placeholder="lastName" required>
-            </div>
-            <div class="form-group">
-               <label for="emailAddress">emailAddress</label>
-               <input type="text" ngModel="{{ employee.emailAddress}}" name="emailAddress" class="form-control" id="emailAddress" placeholder="emailAddress" required>
-            </div>
-            <div class="modal-footer">
-              <button type="button" id="add-employee-form" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button (click)="onUpdateEmloyee(editForm)" [disabled]="editForm.invalid" data-bs-dismiss="modal" class="btn btn-primary" >Save changes</button>
-            </div>
-            </form>
-         </div>
-      </div>
-    </div>
-    </div>
-
-    <!-- Delete Modal -->
-<div class="modal fade" id="deleteEmployeeModal" tabindex="-1" role="dialog" aria-labelledby="deleteModelLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-     <div class="modal-content">
-        <div class="modal-header">
-           <h5 class="modal-title" id="deleteModelLabel">Delete Employee</h5>
-           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-           </button>
-        </div>
-        <div class="modal-body">
-           <p>Are you sure you want to delete employee {{employee.firstName}}?</p>
-           <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
-              <button (click)="onDeleteEmloyee(employee)" class="btn btn-danger" data-bs-dismiss="modal">Yes</button>
-           </div>
-        </div>
-     </div>
   </div>
-</div>
+
+  <!-- Bootstrap Bundle with Popper -->
+  <script>
+      feather.replace()
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+      crossorigin="anonymous"></script>
+
+
+
+
+
+
+    <div class="modal fade" id="GetAbsencesModal" tabindex="-1" role="dialog" aria-labelledby="GetAbsencesModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+           <div class="modal-header">
+              <h5 class="modal-title" id="GetAbsencesModalLabel">Get Absences</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+              </button>
+           </div>
+           <div class="modal-body">
+            <form #dateForm="ngForm" (ngSubmit)="getUserAbsencesCount(dateForm)">
+              <div class="form-group">
+                <label for="timeLog">startDate</label>
+                <input type="date" [(ngModel)]="startDate" name="startDate" id="startDate" required>
+             </div>
+             <div class="form-group">
+              <label for="timeLog">endDate</label>
+              <input type="date" [(ngModel)]="endDate" name="endDate" id="endDate" required>
+           </div>
+              <div class="modal-footer">
+                <button [disabled]="dateForm.invalid || startDate >= endDate" type="submit" class="btn btn-primary">Save changes</button>
+              </div>
+              </form>
+           </div>
+           <div *ngIf="dateSubmitted">
+            <p >Number of Missed Time In: {{ missedTimeInCount }}</p>
+            <p >Number of Missed Time Out: {{ missedTimeOutCount }}</p>
+            <p>Number of Late Time In: {{ lateTimeInCount }}</p>
+            <p>Number of Early Time Out: {{ earlyTimeOutCount }}</p>
+           </div>
+        </div>
+      </div>
+      </div>
+
+    <div class="modal fade" id="updatePasswordModal" tabindex="-1" role="dialog" aria-labelledby="updatePasswordModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+           <div class="modal-header">
+            <h5 class="modal-title" id="updatePasswordModalLabel">Edit Employee {{employee.firstName }} Password</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+              </button>
+           </div>
+           <div class="modal-body">
+            <form #editPasswordForm="ngForm">
+              <input type="hidden" ngModel="{{ employee.employeeIdNumber}}" name="employeeIdNumber"  required>
+
+              <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" ngModel name="password"  [(ngModel)]="password" class="form-control" id="password" required>
+             </div>
+
+             <div class="form-group">
+              <label for="confirmPassword">confirmPassword</label>
+              <input type="password" ngModel name="confirmPassword" (ngModelChange)="checkPassword($event)" class="form-control" id="confirmPassword" required>
+           </div>
+
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button (click)="onUpdatePassword(editPasswordForm)" [disabled]="editPasswordForm.invalid || !samePassword" data-bs-dismiss="modal" class="btn btn-primary" >Save changes</button>
+              </div>
+              </form>
+           </div>
+        </div>
+      </div>
+      </div>
+
+    <div class="modal fade" id="updateProfilePictureModal" tabindex="-1" role="dialog" aria-labelledby="updateProfilePictureModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+           <div class="modal-header">
+            <h5 class="modal-title" id="updateProfilePictureModalLabel">Edit Employee {{employee.firstName }} Profile Picture</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+              </button>
+           </div>
+           <div class="modal-body">
+            <form #editProfileForm="ngForm">
+              <input type="hidden" ngModel="{{ employee.employeeIdNumber }}" name="employeeIdNumber"required>
+
+              <div class="form-group">
+                 <label for="imageFile">ImageFile</label>
+                 <input type="file" (change)="onChange($event)" name="imageFile" class="form-control" id="imageFile" required>
+              </div>
+
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button (click)="onUpdateProfilePicture(editProfileForm)" [disabled]="editProfileForm.invalid" data-bs-dismiss="modal" class="btn btn-primary" >Save changes</button>
+              </div>
+              </form>
+           </div>
+        </div>
+      </div>
+      </div>
+
+
+    <div class="modal fade" id="updateEmployeeModal" tabindex="-1" role="dialog" aria-labelledby="employeeEditModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+           <div class="modal-header">
+            <h5 class="modal-title" id="updateEmployeeModalLabel">Edit Employee {{employee.firstName }}</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+              </button>
+           </div>
+           <div class="modal-body">
+            <form #editForm="ngForm">
+              <input type="hidden" ngModel="{{ employee.id }}" name="id" id="id" required>
+              <input type="hidden" ngModel="{{ employee.employeeIdNumber}}" name="employeeIdNumber"  required>
+              <input type="hidden" ngModel="{{ employee.employeeRoleName}}" name="employeeRoleName" id="employeeRoleName" required>
+              <div class="form-group">
+                 <label for="firstName">firstName</label>
+                 <input type="text" ngModel="{{ employee.firstName}}" name="firstName" class="form-control" id="firstName" placeholder="firstName" required>
+              </div>
+              <div class="form-group">
+                 <label for="middleName">middleName</label>
+                 <input type="text" ngModel="{{ employee.middleName}}" name="middleName" class="form-control" id="middleName" placeholder="middleName">
+              </div>
+              <div class="form-group">
+                 <label for="lastName">lastName</label>
+                 <input type="text" ngModel="{{ employee.lastName}}" name="lastName" class="form-control" id="lastName" placeholder="lastName" required>
+              </div>
+              <div class="form-group">
+                 <label for="emailAddress">emailAddress</label>
+                 <input type="text" ngModel="{{ employee.emailAddress}}" name="emailAddress" class="form-control" id="emailAddress" placeholder="emailAddress" required>
+              </div>
+              <div class="modal-footer">
+                <button type="button"  class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button (click)="onUpdateEmloyee(editForm)" [disabled]="editForm.invalid" data-bs-dismiss="modal" class="btn btn-primary" >Save changes</button>
+              </div>
+              </form>
+           </div>
+        </div>
+      </div>
+      </div>
+
+      <!-- Delete Modal -->
+  <div class="modal fade" id="deleteEmployeeModal" tabindex="-1" role="dialog" aria-labelledby="deleteModelLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+       <div class="modal-content">
+          <div class="modal-header">
+             <h5 class="modal-title" id="deleteModelLabel">Delete Employee</h5>
+             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+             </button>
+          </div>
+          <div class="modal-body">
+             <p>Are you sure you want to delete employee {{employee.firstName}}?</p>
+             <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+                <button (click)="onDeleteEmloyee(employee)" class="btn btn-danger" data-bs-dismiss="modal">Yes</button>
+             </div>
+          </div>
+       </div>
+    </div>
+      </div>
+
 </div>
