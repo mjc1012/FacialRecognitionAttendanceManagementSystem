@@ -17,7 +17,7 @@ const httpOptions = {
   providedIn: 'root'
 })
 export class FaceRecognitionStatusService {
-  private baseUrl = environment.FaceRecongtionAPIBaseUrl + 'api/FaceRecognitionStatus';
+  private baseUrl = environment.AttendaceManagementSystemAPIBaseUrl + 'api/FaceRecognitionStatus';
   constructor(private http:HttpClient) { }
 
   add(status: FaceRecognitionStatus): Observable<ResponseApi>{

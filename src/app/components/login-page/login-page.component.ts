@@ -2,10 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NgToastService } from 'ng-angular-popup';
-import { Person } from 'src/app/models/person';
 import { AuthService } from 'src/app/services/auth.service';
 import { EmployeeService } from 'src/app/services/employee.service';
-import { PersonService } from 'src/app/services/person.service';
 import { ResetPasswordService } from 'src/app/services/reset-password.service';
 import { UserStoreService } from 'src/app/services/user-store.service';
 
@@ -18,8 +16,7 @@ export class LoginPageComponent implements OnInit {
   resetPasswordEmail!: string;
   isValidEmail = false;
 
-  constructor(private authService: AuthService, private router: Router, private toast: NgToastService, private userStoreService: UserStoreService, private personService: PersonService,
-    private resetPasswordService: ResetPasswordService) { }
+  constructor(private authService: AuthService, private router: Router, private toast: NgToastService, private userStoreService: UserStoreService, private resetPasswordService: ResetPasswordService) { }
 
   ngOnInit(): void {
   }
@@ -32,13 +29,8 @@ export class LoginPageComponent implements OnInit {
           this.authService.storeAccessToken(data.value.accessToken);
           this.authService.storeRefreshToken(data.value.refreshToken);
           const tokenPayload = this.authService.decodedToken();
-          this.userStoreService.setPairIdForStore(tokenPayload.name);
+          this.userStoreService.setEmployeeIdForStore(tokenPayload.name);
           this.userStoreService.setRoleForStore(tokenPayload.role);
-          const person: Person = {
-            pairId: tokenPayload.name,
-            password: password
-          }
-          this.AuthenticatePerson(person);
           this.onNavigate(tokenPayload.role);
         }
         else{
@@ -46,29 +38,10 @@ export class LoginPageComponent implements OnInit {
         }
       },
       error:(e)=>{
-        console.log(e);
+        this.toast.error({detail: "ERROR", summary: e, duration: 2000})
       }
     });
     loginForm.reset();
-  }
-
-  AuthenticatePerson(person: Person){
-    this.personService.authenticate(person).subscribe({
-      next:(data) =>{
-        if(data.status){
-        this.toast.success({detail: "SUCCESS", summary: data.message, duration: 2000})
-        }
-        else{
-          this.toast.error({detail: "ERROR", summary: data.message, duration: 2000})
-        }
-        this.personService.storeAccessToken(data.value.accessToken);
-          this.personService.storeRefreshToken(data.value.refreshToken);
-        console.log(data.message)
-      },
-      error:(e)=>{
-        console.log(e);
-      }
-    });
   }
 
   onNavigate(role: string){

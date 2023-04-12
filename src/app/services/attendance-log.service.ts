@@ -18,8 +18,8 @@ export class AttendanceLogService {
     return this.http.get<ResponseApi>(this.baseUrl);
   }
 
-  public getAllForUser(pairId: string): Observable<ResponseApi>{
-    const url = `${this.baseUrl}/${pairId}`;
+  public getAllForUser(employeeId: number): Observable<ResponseApi>{
+    const url = `${this.baseUrl}/${employeeId}`;
     return this.http.get<ResponseApi>(url);
   }
 

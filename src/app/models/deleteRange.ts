@@ -1,3 +1,3 @@
 export interface DeleteRange{
-  ids?: (string | undefined)[],
+  ids?: (number | undefined)[],
 }

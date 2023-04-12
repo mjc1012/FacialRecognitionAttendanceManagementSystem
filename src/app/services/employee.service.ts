@@ -23,11 +23,11 @@ export class EmployeeService {
     return this.http.get<ResponseApi>(url);
   }
 
-  public addEmployee(request: Employee): Observable<ResponseApi>{
+  public addEmployee(request: FormData): Observable<ResponseApi>{
     return this.http.post<ResponseApi>(this.baseUrl, request);
   }
 
-  public updateEmployee(request: Employee): Observable<ResponseApi>{
+  public updateEmployee(request: FormData): Observable<ResponseApi>{
     return this.http.put<ResponseApi>(this.baseUrl, request);
   }
 

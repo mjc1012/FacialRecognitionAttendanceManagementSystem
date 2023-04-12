@@ -1,8 +1,10 @@
 import { Component } from '@angular/core';
 import { NgForm } from '@angular/forms';
+import { NgToastService } from 'ng-angular-popup';
 import { AttendanceLog } from 'src/app/models/attendancelog';
 import { AttendanceLogService } from 'src/app/services/attendance-log.service';
 import { AuthService } from 'src/app/services/auth.service';
+import { EmployeeService } from 'src/app/services/employee.service';
 import { UserStoreService } from 'src/app/services/user-store.service';
 import { environment } from 'src/environments/environment';
 
@@ -12,7 +14,7 @@ import { environment } from 'src/environments/environment';
   styleUrls: ['./user-attendance-page.component.css']
 })
 export class UserAttendancePageComponent {
-  public pairId: string = "";
+  public employeeId: string = "";
   public filteredLogs: AttendanceLog[] = [];
   public logs: AttendanceLog[] = [];
   public editLog: AttendanceLog = {
@@ -35,14 +37,15 @@ export class UserAttendancePageComponent {
   startDate!: Date
   endDate!: Date
 
-  constructor(private attendanceLogService: AttendanceLogService, private authService: AuthService, private userStoreService: UserStoreService) { }
+  constructor(private attendanceLogService: AttendanceLogService, private authService: AuthService, private userStoreService: UserStoreService, private employeeService: EmployeeService
+    , private toast: NgToastService) { }
 
   ngOnInit(): void {
-    this.userStoreService.getPairIdFromStore().subscribe(val=>{
-      const pairIdFromToken = this.authService.getPairIdFromToken();
-      this.pairId = val || pairIdFromToken
+    this.userStoreService.getEmployeeIdFromStore().subscribe(val=>{
+      const employeeIdFromToken = this.authService.getEmployeeIdFromToken();
+      this.employeeId = val || employeeIdFromToken
     })
-    this.getLogs()
+    this.getEmployee()
   }
 
   ToggleFilter(){
@@ -99,8 +102,21 @@ export class UserAttendancePageComponent {
     }
   }
 
-    public getLogs(): void {
-      this.attendanceLogService.getAllForUser(this.pairId).subscribe({
+  public getEmployee(): void {
+    this.employeeService.getEmployee(this.employeeId).subscribe({
+      next:(data) =>{
+        if(data.status){
+          this.getLogs(data.value.id)
+        }
+      },
+      error:(e)=>{
+          this.toast.error({detail: "ERROR", summary: e, duration: 2000})
+      }
+    });
+  }
+
+    public getLogs(id: number): void {
+      this.attendanceLogService.getAllForUser(id).subscribe({
         next:(data) =>{
           if(data.status){
             this.logs = data.value
@@ -109,10 +125,9 @@ export class UserAttendancePageComponent {
           else{
             this.logs = []
           }
-          console.log(data.message)
         },
         error:(e)=>{
-          console.log(e);
+          this.toast.error({detail: "ERROR", summary: e, duration: 2000})
         }
       });
     }

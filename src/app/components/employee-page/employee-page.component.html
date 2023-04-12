@@ -62,7 +62,7 @@
 
                <tr *ngFor="let employee of filteredEmployees">
 
-                <td><input type="checkbox" [(ngModel)]="employee.toDelete" (ngModelChange)="checkToDelete()"  name="" id=""></td>
+                <td><input type="checkbox" [(ngModel)]="employee.toDelete" (ngModelChange)="checkToDelete()"  [disabled]="employee.employeeIdNumber== employeeId" ></td>
                   <td><img style="height:100px;width:100px;" [src]="imageBaseUrl+employee.profilePictureImageName"
                         alt="">
                   </td>
@@ -79,7 +79,7 @@
                         data-bs-target="#GetAbsencesModal" (click)="getEmployeeToGetAbsences(employee)">Get
                         Absences</button></td>
                   <td><button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal"
-                        data-bs-target="#deleteEmployeeModal" (click)="getEmployeeToDelete(employee)" [disabled]="employee.pairId == pairId" >Delete</button>
+                        data-bs-target="#deleteEmployeeModal" (click)="getEmployeeToDelete(employee)" [disabled]="employee.employeeIdNumber== employeeId" >Delete</button>
                   </td>
                </tr>
             </tbody>
@@ -174,6 +174,11 @@
                </div>
                <div class="modal-body">
                   <form #addForm="ngForm" (ngSubmit)="onAddEmloyee(addForm)">
+                    <div class="form-group">
+                      <label for="imageFile">ImageFile</label>
+                      <input type="file" (change)="onChange($event)" name="imageFile" class="form-control" id="imageFile" required>
+                   </div>
+
                      <div class="form-group">
                         <label for="firstName">firstName</label>
                         <input type="text" ngModel name="firstName" class="form-control" id="firstName"
@@ -231,9 +236,11 @@
                <div class="modal-body">
                   <form #editForm="ngForm">
                      <input type="hidden" ngModel="{{ editEmployee.id }}" name="id" id="id" required>
-                     <input type="hidden" ngModel="{{ editEmployee.employeeIdNumber}}" name="employeeIdNumber"
-                        id="employeeIdNumber" required>
-                     <div class="form-group">
+                        <div class="form-group">
+                          <label for="imageFile">ImageFile</label>
+                          <input type="file" (change)="onChange($event)" name="imageFile" class="form-control" id="imageFile" required>
+                       </div>
+                    <div class="form-group">
                         <label for="firstName">firstName</label>
                         <input type="text" ngModel="{{ editEmployee.firstName}}" name="firstName" class="form-control"
                            id="firstName" placeholder="firstName" required>

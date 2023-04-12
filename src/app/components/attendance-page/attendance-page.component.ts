@@ -17,15 +17,9 @@ export class AttendancePageComponent implements OnInit {
   public logs: AttendanceLog[] = [];
   public filteredLogs: AttendanceLog[] = [];
   public editLog: AttendanceLog = {
-    timeLog: 'string',
-    attendanceLogTypeName: 'string',
-    employeeIdNumber: 'string',
   }
 
   public deleteLog: AttendanceLog = {
-    timeLog: 'string',
-    attendanceLogTypeName: 'string',
-    employeeIdNumber: 'string',
   }
   imageBaseUrl=environment.AttendaceManagementSystemAPIBaseUrl+'attendancepictures/';
   _timeLogFilter: string = ""
@@ -63,40 +57,21 @@ export class AttendancePageComponent implements OnInit {
   }
 
   onDeleteLogs(){
-    const ids = this.filteredLogs.filter(log => log.toDelete == true).map(log => log.id?.toString())
+    const ids = this.filteredLogs.filter(log => log.toDelete == true).map(log => log.id)
     const deleteRange: DeleteRange = {
       ids: ids
     }
     this.attendanceLogService.deleteLogs(deleteRange).subscribe({
       next:(data) =>{
         if(data.status){
-          this.getLogs();
           this.toast.success({detail: "SUCCESS", summary: data.message, duration: 2000})
         }else{
           this.toast.error({detail: "ERROR", summary: data.message, duration: 2000})
         }
-        console.log(data.message)
+        this.getLogs();
       },
       error:(e)=>{
-        console.log(e);
-      }
-    });
-  }
-
-  public getEmployees(): void {
-    this.employeeService.getEmployees().subscribe({
-      next:(data) =>{
-        if(data.status){
-          this.employees = data.value
-
-        }else{
-          this.employees = []
-          this.toast.error({detail: "ERROR", summary: data.message, duration: 2000})
-        }
-        console.log(data.message)
-      },
-      error:(e)=>{
-        console.log(e);
+        this.toast.error({detail: "ERROR", summary: e, duration: 2000})
       }
     });
   }
@@ -202,18 +177,35 @@ export class AttendancePageComponent implements OnInit {
           if(data.status){
             this.logs = data.value
             this.filteredLogs = this.filterLogsByValue()
-            this.getEmployees()
           }
           else{
             this.logs = []
+            this.filteredLogs = []
           }
-          console.log(data.message)
+          this.getEmployees()
         },
         error:(e)=>{
-          console.log(e);
+          this.toast.error({detail: "ERROR", summary: e, duration: 2000})
         }
       });
     }
+
+    public getEmployees(): void {
+      this.employeeService.getEmployees().subscribe({
+        next:(data) =>{
+          if(data.status){
+            this.employees = data.value
+
+          }else{
+            this.employees = []
+          }
+        },
+        error:(e)=>{
+          this.toast.error({detail: "ERROR", summary: e, duration: 2000})
+        }
+      });
+    }
+
 
     public removeDateFilter(filterDateForm: NgForm){
       filterDateForm.reset()
@@ -239,10 +231,9 @@ export class AttendancePageComponent implements OnInit {
           }else{
             this.toast.error({detail: "ERROR", summary: data.message, duration: 2000})
           }
-          console.log(data.message)
         },
         error:(e)=>{
-          console.log(e);
+          this.toast.error({detail: "ERROR", summary: e, duration: 2000})
         }
       });
       addForm.reset();
@@ -265,10 +256,9 @@ export class AttendancePageComponent implements OnInit {
           }else{
             this.toast.error({detail: "ERROR", summary: data.message, duration: 2000})
           }
-          console.log(data.message)
         },
         error:(e)=>{
-          console.log(e);
+          this.toast.error({detail: "ERROR", summary: e, duration: 2000})
         }
       });
     }
@@ -281,15 +271,14 @@ export class AttendancePageComponent implements OnInit {
       this.attendanceLogService.delete(id).subscribe({
         next:(data) =>{
           if(data.status){
-            this.getLogs();
             this.toast.success({detail: "SUCCESS", summary: data.message, duration: 2000})
           }else{
             this.toast.error({detail: "ERROR", summary: data.message, duration: 2000})
           }
-          console.log(data.message)
+          this.getLogs();
         },
         error:(e)=>{
-          console.log(e);
+          this.toast.error({detail: "ERROR", summary: e, duration: 2000})
         }
       });
     }
@@ -303,10 +292,9 @@ export class AttendancePageComponent implements OnInit {
           }else{
             this.toast.error({detail: "ERROR", summary: data.message, duration: 2000})
           }
-          console.log(data.message)
         },
         error:(e)=>{
-          console.log(e);
+          this.toast.error({detail: "ERROR", summary: e, duration: 2000})
         }
       });
     }

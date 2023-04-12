@@ -7,6 +7,7 @@ import { FaceToRecognize } from 'src/app/models/facetorecognize';
 import { Person } from 'src/app/models/person';
 import { AttendanceLogService } from 'src/app/services/attendance-log.service';
 import { AuthService } from 'src/app/services/auth.service';
+import { EmployeeService } from 'src/app/services/employee.service';
 import { FaceRecognitionStatusService } from 'src/app/services/face-recognition-status.service';
 import { FaceRecognitionService } from 'src/app/services/face-recognition.service';
 import { FaceToRecognizeService } from 'src/app/services/face-to-recognize.service';
@@ -20,7 +21,7 @@ import { LoaderService } from 'src/app/services/loader.service';
 export class FaceRecognitionPageComponent implements OnInit {
 
   constructor(private faceToRecognizeService: FaceToRecognizeService, private faceRecognitionService: FaceRecognitionService, private faceRecognitionStatusService: FaceRecognitionStatusService,
-    private attendanceLogService: AttendanceLogService, private authService: AuthService, private toast: NgToastService) { }
+    private attendanceLogService: AttendanceLogService, private authService: AuthService, private toast: NgToastService, private employeeService: EmployeeService) { }
 
   video: any;
   canvas: any;
@@ -30,6 +31,7 @@ export class FaceRecognitionPageComponent implements OnInit {
   faceCtx: any;
   roi: any;
   cameraMessage: string = "";
+  greetingMessage: string = "";
     cameraWarning: string = "";
     countDownMessage: string = "";
   predictedPerson: Person ={};
@@ -41,12 +43,7 @@ export class FaceRecognitionPageComponent implements OnInit {
   previousText: string = ''
   isPaused: boolean = false;
   faceDetected: boolean = false;
-  isQuestionFormDisplayed: boolean = false;
-  isLoginFormDisplayed: boolean = false;
-  wrongPredictionNum: number = 0;
-  wrongPredictionIsRecent = false;
-  employeeIdNumber: any;
-  password: any;
+  isAttendanceDisplayed: boolean = false;
   utterance = new SpeechSynthesisUtterance()
 
  async ngOnInit() {
@@ -93,77 +90,8 @@ export class FaceRecognitionPageComponent implements OnInit {
     )
   }
 
-  wrongPrediction(){
-    this.snapshotFaceBase64String = ""
-    this.savePrediction(false)
-    this.wrongPredictionIsRecent = true
-    this.wrongPredictionNum += 1;
-    if(this.wrongPredictionNum < 2){
-      this.cameraWarning = "Please try again"
-      this.playText("Please try again")
-      this.isPaused = false;
-      this.isQuestionFormDisplayed = false;
-    }
-    else{
-      this.isPaused = true;
-      this.isQuestionFormDisplayed = false;
-      this.isLoginFormDisplayed = true;
-      this.cameraWarning = "Please log in with credentials"
-      this.playText("Please log in with credentials")
-    }
-    this.predictedPerson = {}
-  }
-
-  onAttendance(attendanceForm: NgForm){
-    this.authService.authenticateForAttendance(attendanceForm.value).subscribe({
-      next:(data) =>{
-        if(data.status){
-          const attendancelog = {
-            timeLog: this.formatDate(new Date()),
-            employeeIdNumber: data.value.employeeIdNumber,
-          }
-          this.onAddLog(attendancelog)
-          this.toast.success({detail: "SUCCESS", summary: data.message, duration: 2000})
-        }
-        else{
-          this.toast.error({detail: "ERROR", summary: data.message, duration: 2000})
-        }
-        console.log(data.message)
-      },
-      error:(e)=>{
-        console.log(e);
-      }
-    });
-  }
-
-
-  savePrediction(isRecognized: boolean){
-    const faceRecognitionStatus = {
-      isRecognized: isRecognized,
-      faceToRecognizeId: this.faceToRecognize.id!,
-      predictedPersonId: this.predictedPerson.id!
-    }
-
-    this.faceRecognitionStatusService.add(faceRecognitionStatus).subscribe({
-      next:(data) =>{
-        if(isRecognized){
-          const attendancelog : AttendanceLog = {
-            timeLog: this.formatDate(new Date()),
-            base64String: this.snapshotFaceBase64String,
-            pairId: this.predictedPerson.pairId!,
-          }
-          this.onAddLog(attendancelog)
-        }
-        console.log(data.message)
-      },
-      error:(e)=>{
-        console.log(e);
-      }
-    })
-  }
-
   playText(text: any) {
-    if (text == this.previousText || speechSynthesis.speaking) return
+    if ((text == this.previousText && this.previousText != "You already logged two times today") || speechSynthesis.speaking) return
     this.previousText = text
     this.utterance.text = text
     this.utterance.rate = 1
@@ -190,11 +118,14 @@ export class FaceRecognitionPageComponent implements OnInit {
           this.faceToRecognize = {
             loggedTime: ""
           }
+          this.toast.error({detail: "ERROR", summary: data.message, duration: 2000})
         }
-        console.log(data.message)
       },
       error:(e)=>{
-        console.log(e);
+        this.toast.error({detail: "ERROR", summary: e, duration: 2000})
+        this.cameraWarning = "Please try again"
+        this.playText("Please try again")
+        this.isPaused = false;
       }
     })
   }
@@ -204,45 +135,31 @@ export class FaceRecognitionPageComponent implements OnInit {
       next:(data) =>{
         if(data.status){
           this.predictedPerson = data.value
+          const attendancelog : AttendanceLog = {
+            timeLog: this.formatDate(new Date()),
+            base64String: this.snapshotFaceDataUrl.replace('data:', '').replace(/^.+,/, ''),
+            firstName: this.predictedPerson.firstName,
+            middleName: this.predictedPerson.middleName,
+            lastName: this.predictedPerson.lastName
+          }
+          this.onAddLog(attendancelog)
         }else{
+          this.isAttendanceDisplayed = false;
           this.predictedPerson = {}
           this.snapshotFaceBase64String = ""
-          this.wrongPredictionIsRecent = true
-          this.wrongPredictionNum += 1;
-          if(this.wrongPredictionNum < 2){
-            this.cameraWarning = "Please Try Again"
-            this.playText("Please Try Again")
-            this.isPaused = false;
-            this.isQuestionFormDisplayed = false;
-          }
-          else{
-            this.isPaused = true;
-            this.isQuestionFormDisplayed = false;
-            this.isLoginFormDisplayed = true;
-            this.cameraWarning = "Please log in with credentials"
-      this.playText("Please log in with credentials")
-          }
-        }
-        console.log(data.message)
-      },
-      error:(e)=>{
-        console.log(e);
-        this.snapshotFaceBase64String = ""
-        this.wrongPredictionIsRecent = true
-        this.wrongPredictionNum += 1;
-        if(this.wrongPredictionNum < 2){
           this.cameraWarning = "Please try again"
           this.playText("Please try again")
           this.isPaused = false;
-          this.isQuestionFormDisplayed = false;
+          this.toast.error({detail: "ERROR", summary: data.message, duration: 2000})
         }
-        else{
-          this.isPaused = true;
-          this.isQuestionFormDisplayed = false;
-          this.isLoginFormDisplayed = true;
-          this.cameraWarning = "Please log in with credentials"
-      this.playText("Please log in with credentials")
-        }
+      },
+      error:(e)=>{
+        this.toast.error({detail: "ERROR", summary: e, duration: 2000})
+        this.isAttendanceDisplayed = false;
+        this.snapshotFaceBase64String = ""
+          this.cameraWarning = "Please try again"
+          this.playText("Please try again")
+          this.isPaused = false;
       }
     })
   }
@@ -250,39 +167,19 @@ export class FaceRecognitionPageComponent implements OnInit {
     let seconds = 1
     let counter = seconds
     setInterval(() =>{
-      if(this.faceDetected && !speechSynthesis.speaking  && !this.isPaused && !this.wrongPredictionIsRecent){
-        this.playText("Please stay still")
-        if(this.previousText == "Please stay still" && !speechSynthesis.speaking){
-          this.countDownMessage = "Please stay still for "+counter+" seconds";
-          counter--;
-          if (counter < 0) {
-            counter = seconds;
-            this.countDownMessage = "";
-              this.extractFaceFromBox(this.video, this.roi)
-              this.isPaused = true;
-              this.isQuestionFormDisplayed = true;
-          }
-        }
-      }
-      else if(this.isQuestionFormDisplayed && !speechSynthesis.speaking &&  this.isPaused){
-        if(typeof this.predictedPerson.lastName !== 'undefined'){
-          this.playText("Are you " + this.predictedPerson.firstName + " " + this.predictedPerson.lastName + "?")
-          if(this.previousText == "Are you " + this.predictedPerson.firstName + " " + this.predictedPerson.lastName + "?" && !speechSynthesis.speaking){
-            this.countDownMessage = "Form will be gone in  "+counter+" seconds";
-            counter--;
-            if (counter < 0) {
-              counter = seconds;
-              this.countDownMessage = "";
-              this.savePrediction(true)
-
-            }
-          }
+      if(this.faceDetected && !speechSynthesis.speaking  && !this.isPaused ){
+        this.countDownMessage = "Please stay still";
+        counter--;
+        if (counter < 0) {
+          counter = seconds;
+          this.countDownMessage = "";
+            this.isPaused = true;
+            this.extractFaceFromBox(this.video, this.roi)
         }
       }
       else{
         this.countDownMessage = ''
           counter = seconds;
-          this.wrongPredictionIsRecent = false
       }
     }, 1000);
   }
@@ -292,41 +189,34 @@ export class FaceRecognitionPageComponent implements OnInit {
       next:(data) =>{
         if(data.status){
           if(data.value.attendanceLogTypeName == "TimeOut"){
-            this.playText("Good bye" + data.value.firstName + " " + data.value.lastName)
-
+            this.playText("Good evening " + this.predictedPerson.firstName)
+            this.greetingMessage = "Good evening"
             this.toast.success({detail: "SUCCESS", summary: data.message, duration: 2000})
           }
           else if(data.value.attendanceLogTypeName == "TimeIn"){
             this.toast.success({detail: "SUCCESS", summary: data.message, duration: 2000})
-          this.playText("Good morning" + data.value.firstName + " " + data.value.lastName)
+          this.playText("Good morning" + this.predictedPerson.firstName)
+          this.greetingMessage = "Good morning"
           }
           else{
             this.toast.error({detail: "ERROR", summary: data.message, duration: 2000})
           }
+          this.isAttendanceDisplayed = true;
         }
         else{
         this.playText(data.message)
+        this.toast.warning({detail: "WARNING", summary: data.message, duration: 2000})
+        this.isAttendanceDisplayed = false;
         }
-        this.wrongPredictionNum = 0;
         this.isPaused = false;
-        this.isQuestionFormDisplayed = false;
-        this.isLoginFormDisplayed = false;
       },
       error:(e)=>{
-        console.log(e);
+        this.toast.error({detail: "ERROR", summary: e, duration: 2000})
+        this.cameraWarning = "Please try again"
+        this.playText("Please try again")
+        this.isPaused = false;
       }
     });
-    this.snapshotFaceBase64String = ""
-    this.predictedPerson = {}
-  }
-
-  onCancelForm(){
-    this.wrongPredictionNum = 0;
-        this.isPaused = false;
-        this.isQuestionFormDisplayed = false;
-        this.isLoginFormDisplayed = false;
-        this.snapshotFaceBase64String = ""
-        this.predictedPerson = {}
   }
 
   async extractFaceFromBox (inputImage: any, box: any) {
@@ -393,27 +283,28 @@ formatDate(date: Date) {
 
   drawBoxForFacePlacement (prediction: any){
     prediction.forEach((pred: any) => {
-      const spaceBetweenBoxAndVideo = 150;
+      const widthSpace = 300;
+      const heightSpace = 100;
 
-      if(pred.detection.box.x > spaceBetweenBoxAndVideo && pred.detection.box.y > spaceBetweenBoxAndVideo && pred.detection.box.width + pred.detection.box.x < this.canvas.width - spaceBetweenBoxAndVideo &&
-        pred.detection.box.height + pred.detection.box.y < this.canvas.height - spaceBetweenBoxAndVideo){
+      if(pred.detection.box.x > widthSpace && pred.detection.box.y > heightSpace && pred.detection.box.width + pred.detection.box.x < this.canvas.width - widthSpace &&
+        pred.detection.box.height + pred.detection.box.y < this.canvas.height - heightSpace){
           if(pred.landmarks.positions[44].x - pred.landmarks.positions[37].x < 120){
             this.cameraMessage = 'Please move closer to the camera'
             this.playText('Please move closer to the camera')
-            this.drawBox("4", "orange", spaceBetweenBoxAndVideo, spaceBetweenBoxAndVideo, this.canvas.width - (spaceBetweenBoxAndVideo * 2), this.canvas.height - (spaceBetweenBoxAndVideo * 2));
+            this.drawBox("4", "orange", widthSpace, heightSpace, this.canvas.width - (widthSpace * 2), this.canvas.height - (heightSpace * 2));
             this.faceDetected = false;
           }
           else{
             this.roi = pred.detection.box;
             this.cameraMessage = ''
-            this.drawBox("4", "green", spaceBetweenBoxAndVideo, spaceBetweenBoxAndVideo, this.canvas.width - (spaceBetweenBoxAndVideo * 2), this.canvas.height - (spaceBetweenBoxAndVideo * 2));
+            this.drawBox("4", "green", widthSpace, heightSpace, this.canvas.width - (widthSpace * 2), this.canvas.height - (heightSpace * 2));
             this.faceDetected = true;
           }
       }
       else{
         this.cameraMessage = 'Please put your face inside the box'
           this.playText('Please put your face inside the box')
-          this.drawBox("4", "red", spaceBetweenBoxAndVideo, spaceBetweenBoxAndVideo, this.canvas.width - (spaceBetweenBoxAndVideo * 2), this.canvas.height - (spaceBetweenBoxAndVideo * 2));
+          this.drawBox("4", "red", widthSpace, 100, this.canvas.width - (widthSpace * 2), this.canvas.height - (100 * 2));
           this.faceDetected = false;
       }
     })

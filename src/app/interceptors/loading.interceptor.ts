@@ -14,7 +14,6 @@ import { NgToastService } from 'ng-angular-popup';
 import { Router } from '@angular/router';
 import { TokenApi } from '../models/token-Api';
 import { ResponseApi } from '../models/response-api';
-import { PersonService } from '../services/person.service';
 import { environment } from 'src/environments/environment';
 
 @Injectable()

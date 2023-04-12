@@ -22,37 +22,30 @@
                   <h6> <strong> Role: </strong>{{ employee.employeeRoleName }}</h6>
               </div>
               <div class="col-lg-6 d-flex justify-content-center align-content-center">
-                  <button type="button" class="btn btn-sm btn-outline-primary px-5"
-                  data-bs-toggle="modal" data-bs-target="#updateProfilePictureModal">
-                  <i class="btn-icon-prepend" data-feather="upload"></i>
-                      Upload Photo</button>
-              </div>
-              <div class="col-lg-6 d-flex justify-content-center align-content-center">
                   <button type="button"
                   data-bs-toggle="modal"
                   data-bs-target="#updateEmployeeModal"
-                  class="btn btn-sm btn-outline-warning px-5"> <i class="btn-icon-prepend"
+                  class="btn btn-sm btn-outline-warning px-5 my-2"> <i class="btn-icon-prepend"
                           data-feather="edit"></i>
                       Edit Profile</button>
 
               </div>
               <div class="col-lg-6 d-flex justify-content-center align-content-center">
                   <button type="button" data-bs-toggle="modal" data-bs-target="#GetAbsencesModal"
-                  (click)="getEmployeeToGetAbsences(employee)"
-                  class="btn btn-sm btn-outline-secondary px-5"> <i class="btn-icon-prepend"
+                  class="btn btn-sm btn-outline-secondary px-5 my-2"> <i class="btn-icon-prepend"
                           data-feather="calendar"></i>
                       Get Absence</button>
               </div>
               <div class="col-lg-6 d-flex justify-content-center align-content-center">
                   <button type="button" data-bs-toggle="modal" data-bs-target="#updatePasswordModal"
-                  class="btn btn-sm btn-outline-success px-5"> <i class="btn-icon-prepend"
+                  class="btn btn-sm btn-outline-success px-5 my-2"> <i class="btn-icon-prepend"
                           data-feather="lock"></i>
                       Update Password</button>
 
               </div>
               <div class="col-lg-6 d-flex justify-content-center align-content-center">
                   <button type="button" data-bs-toggle="modal" data-bs-target="#deleteEmployeeModal"
-                  class="btn btn-sm btn-outline-danger px-5"> <i class="btn-icon-prepend"
+                  class="btn btn-sm btn-outline-danger px-5 my-2"> <i class="btn-icon-prepend"
                           data-feather="trash-2"></i>
                       Delete Profile</button>
               </div>
@@ -138,34 +131,6 @@
         </div>
       </div>
       </div>
-
-    <div class="modal fade" id="updateProfilePictureModal" tabindex="-1" role="dialog" aria-labelledby="updateProfilePictureModalLabel" aria-hidden="true">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-           <div class="modal-header">
-            <h5 class="modal-title" id="updateProfilePictureModalLabel">Edit Employee {{employee.firstName }} Profile Picture</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-              </button>
-           </div>
-           <div class="modal-body">
-            <form #editProfileForm="ngForm">
-              <input type="hidden" ngModel="{{ employee.employeeIdNumber }}" name="employeeIdNumber"required>
-
-              <div class="form-group">
-                 <label for="imageFile">ImageFile</label>
-                 <input type="file" (change)="onChange($event)" name="imageFile" class="form-control" id="imageFile" required>
-              </div>
-
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button (click)="onUpdateProfilePicture(editProfileForm)" [disabled]="editProfileForm.invalid" data-bs-dismiss="modal" class="btn btn-primary" >Save changes</button>
-              </div>
-              </form>
-           </div>
-        </div>
-      </div>
-      </div>
-
 
     <div class="modal fade" id="updateEmployeeModal" tabindex="-1" role="dialog" aria-labelledby="employeeEditModalLabel" aria-hidden="true">
       <div class="modal-dialog" role="document">

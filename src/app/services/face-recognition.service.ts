@@ -16,7 +16,7 @@ const httpOptions = {
   providedIn: 'root'
 })
 export class FaceRecognitionService {
-  private baseUrl = environment.FaceRecongtionAPIBaseUrl + 'api/FaceRecognitionService';
+  private baseUrl = environment.AttendaceManagementSystemAPIBaseUrl + 'api/FaceRecognitionService';
 
   constructor(private http:HttpClient) { }
 

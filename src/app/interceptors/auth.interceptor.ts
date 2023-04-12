@@ -10,15 +10,13 @@ import { catchError, Observable, switchMap, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { NgToastService } from 'ng-angular-popup';
 import { Router } from '@angular/router';
-import { PersonService } from '../services/person.service';
 import { ResponseApi } from '../models/response-api';
 import { environment } from 'src/environments/environment';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
 
-  constructor(private authService: AuthService, private toast: NgToastService, private router: Router, private personService: PersonService
-  ) {}
+  constructor(private authService: AuthService, private toast: NgToastService, private router: Router) {}
 
   handleUnauthorizedTokenAttendanceApi(req: HttpRequest<any>, next: HttpHandler){
     const token = {
@@ -44,31 +42,7 @@ export class AuthInterceptor implements HttpInterceptor {
     )
   }
 
-  handleUnauthorizedTokenFaceApi(req: HttpRequest<any>, next: HttpHandler){
-    const secondaryToken = {
-      accessToken:  this.personService.getAccessToken()!,
-      refreshToken: this.personService.getRefreshToken()!
-    }
-    return this.personService.renewToken(secondaryToken).pipe(
-      switchMap((data: ResponseApi)=>{
-        this.personService.storeRefreshToken(data.value.refreshToken)
-        this.personService.storeAccessToken(data.value.accessToken)
 
-        req = req.clone({
-          setHeaders: {Authorization:`Bearer ${this.personService.getAccessToken()}`}
-        })
-
-        return next.handle(req);
-      }),
-      catchError((err)=>{
-        return throwError(()=>{
-          this.toast.warning({detail: "WARNING", summary:"Token is expired, Please Login again", duration: 3000})
-            this.router.navigate(['login'])
-            this.authService.logout();
-        })
-      })
-    )
-  }
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     const myToken = this.authService.getAccessToken();
@@ -86,7 +60,6 @@ export class AuthInterceptor implements HttpInterceptor {
           if(error.status === 401){
             const errorUrl = error.url!.split("api")[0]
             if(errorUrl == environment.AttendaceManagementSystemAPIBaseUrl) return this.handleUnauthorizedTokenAttendanceApi(request, next);
-            if(errorUrl == environment.FaceRecongtionAPIBaseUrl)return this.handleUnauthorizedTokenFaceApi(request, next);
           }
         }
         return throwError(() => new Error("Some other error occured"));

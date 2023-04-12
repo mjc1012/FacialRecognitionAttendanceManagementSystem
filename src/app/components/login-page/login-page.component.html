@@ -1,38 +1,41 @@
 <app-spinner></app-spinner>
 <app-navbar></app-navbar>
-<div class="app-content row d-flex justiy-content-center align-content-center">
-  <div class="col-lg-6 my-5" style="padding: 20vh 20vh">
-    <div class="card">
-      <div class="card-header bg-black text-white">
-        <h3>Login</h3>
-      </div>
-      <div class="card-body">
-        <form #loginForm='ngForm' (ngSubmit)="onLogin(loginForm)">
-          <div class="form-group col-12">
 
-            <label>Id Number</label>
-            <input class="form-control" required ngModel name="employeeIdNumber">
-          </div>
+<div class="app-content">
 
-          <div class="form-group col-12">
-            <label>Password</label>
-            <input class="form-control" required type="password" ngModel name="password">
-          </div>
+  <div class="m-5 row d-flex justify-content-center align-content-center text-left" id="main-container">
+    <div class="col-lg-6 my-5" style="padding: 20vh 20vh">
+      <div class="card">
+        <div class="card-header bg-black text-white">
+          <h3>Login</h3>
+        </div>
+        <div class="card-body">
+          <form #loginForm='ngForm' (ngSubmit)="onLogin(loginForm)">
+            <div class="form-group col-12">
+              <label>Id Number</label>
+              <input class="form-control" required ngModel name="employeeIdNumber">
+            </div>
 
-          <!-- this right here is for the button -->
-          <div class="form-group col-12">
-            <a type="button" data-bs-toggle="modal" data-bs-target="#emailModal">Forgot Password</a>
-          </div>
+            <div class="form-group col-12">
+              <label>Password</label>
+              <input class="form-control" required type="password" ngModel name="password">
+            </div>
 
-          <div class="col-md-12 d-flex justify-content-end align-content-center">
-            <button [disabled]="!loginForm.valid" type="submit" class="btn btn-md btn-primary mr-3">Login</button>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <button type="button" class="btn btn-md btn-secondary">Cancel</button>
-          </div>
-        </form>
+            <div class="form-group col-12">
+              <a type="button" data-bs-toggle="modal" data-bs-target="#emailModal">Forgot Password</a>
+            </div>
+
+            <div class="col-md-12 d-flex justify-content-end align-content-center">
+              <button [disabled]="!loginForm.valid" type="submit" class="btn btn-md btn-primary mr-3">Login</button>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              <button type="button" class="btn btn-md btn-secondary">Cancel</button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   </div>
+
 </div>
 
 <div class="modal fade" id="emailModal" tabindex="-1" role="dialog" aria-labelledby="emailModalLabel"
@@ -57,7 +60,7 @@
             <button type="button" id="add-employee-form" class="btn btn-secondary"
               data-bs-dismiss="modal">Close</button>
             <button (click)="onForgotPassword()" [disabled]="!isValidEmail" data-bs-dismiss="modal"
-              class="btn btn-primary">Send Email</button>
+              class="btn btn-primary">Save changes</button>
           </div>
         </form>
       </div>

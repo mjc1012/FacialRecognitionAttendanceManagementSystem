@@ -1,5 +1,5 @@
 <nav class="navbar sticky-top navbar-dark bg-dark px-5 justify-content-center">
-  <a class="navbar-brand" href="#">Alliance</a>
+  <a class="navbar-brand fw-bold" href="#">Alliance</a>
   <span class="navbar-text divider">&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
   <span class="navbar-brand">
     <button class="navbar-toggler btn btn-sm btn-dark" type="button" data-bs-toggle="collapse"
@@ -14,6 +14,45 @@
         <a class="nav-link active" aria-current="page" href="/face-recognition">Face Recognition</a>
       </li>
 
+      <!-- to be displayed in all user -->
+      <ng-container *ngIf="role === 'Admin' || role === 'User'">
+        <li class="nav-item">
+          <!-- for the data collection page -->
+          <a class="nav-link active" aria-current="page" href="/face-collection">Face Collection</a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="/user-attendance-log-list">User's Attendance</a>
+        </li>
+
+        <ng-container *ngIf="role === 'Admin'">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="/employee-list">Employee</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="/attendance-log-list">Attendance</a>
+        </li>
+        <!-- <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="/train-model">Train</a>
+        </li> -->
+      </ng-container>
+
+        <li class="nav-item">
+          <!-- Account here means the profile page -->
+          <a class="nav-link active" aria-current="page" href="/account">Profile</a>
+        </li>
+      </ng-container>
+
+
+
+
+
+
+
+
+
+
+
 
       <!-- displayed in bothe roles -->
       <ng-container *ngIf="!isLoggedin()">
@@ -23,32 +62,6 @@
       </ng-container>
 
       <ng-container *ngIf="isLoggedin()">
-
-      <!-- only displayed when role is admin -->
-      <ng-container *ngIf="role === 'Admin' || role === 'User'">
-        <li class="nav-item">
-          <!-- for the data collection page -->
-          <a class="nav-link active" aria-current="page" href="/face-collection">Face Collection</a>
-        </li>
-        <li class="nav-item">
-          <!-- Account here means the profile page -->
-          <a class="nav-link active" aria-current="page" href="/account">Profile</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="/user-attendance-log-list">User's Attendance</a>
-        </li>
-      </ng-container>
-
-
-      <ng-container *ngIf="role === 'Admin'">
-        <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="/employee-list">Employee</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="/attendance-log-list">Attendance</a>
-        </li>
-      </ng-container>
-
         <li class="nav-item">
           <a class="nav-link active" aria-current="page" href="/login" (click)="logout()">Logout</a>
         </li>

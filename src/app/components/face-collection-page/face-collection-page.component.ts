@@ -1,16 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import * as faceapi from 'face-api.js';
 import { FaceExpression } from 'src/app/models/faceexpression';
-import { FaceExpressionService } from 'src/app/services/face-expression.service';
 import { FaceToTrainService } from 'src/app/services/face-to-train.service';
 import { FaceToTrain } from 'src/app/models/facetotrain';
 import { environment } from 'src/environments/environment';
-import { Person } from 'src/app/models/person';
+import { Employee } from 'src/app/models/employee';
 import { UserStoreService } from 'src/app/services/user-store.service';
 import { AuthService } from 'src/app/services/auth.service';
-import { PersonService } from 'src/app/services/person.service';
 import { NgToastService } from 'ng-angular-popup';
 import { EmployeeService } from 'src/app/services/employee.service';
+import { PersonService } from 'src/app/services/person.service';
 
 @Component({
   selector: 'app-face-collection-page',
@@ -20,7 +19,7 @@ import { EmployeeService } from 'src/app/services/employee.service';
 export class FaceCollectionPageComponent implements OnInit {
 
     constructor(private faceToTrainService: FaceToTrainService,
-      private toast: NgToastService, private authService: AuthService, private userStoreService: UserStoreService, private personService: PersonService, private employeeService: EmployeeService ) { }
+      private toast: NgToastService, private authService: AuthService, private userStoreService: UserStoreService, private employeeService: EmployeeService, private personService: PersonService ) { }
 
     video: any;
     canvas: any;
@@ -41,26 +40,27 @@ export class FaceCollectionPageComponent implements OnInit {
     isQuestionFormDisplayed: boolean = false;
     isExpressionDisplayed: boolean = false;
     missingExpressionsId!: number[];
-    savedFacesOfPersonNum!: number;
+    savedFacesOfemployeeNum!: number;
     currentExpression!: FaceExpression;
     faceToTrain!: FaceToTrain;
     facesToTrain: FaceToTrain[] = [];
     utterance = new SpeechSynthesisUtterance()
     faceExpressionImageBaseUrl: string =environment.FaceRecongtionAPIBaseUrl+'FaceExpression/';
     faceToTrainImageBaseUrl: string =environment.FaceRecongtionAPIBaseUrl+'FaceDataset/';
-    currentPerson: Person = {};
+    currentEmployee: Employee = {};
     deleteFace!: FaceToTrain;
-    public pairId: string = ""
+    public employeeId: string = ""
     isFacesComplete: boolean = false
+    currentPersonId:number = 0
 
     async ngOnInit() {
 
-      this.userStoreService.getPairIdFromStore().subscribe(val=>{
-        const pairIdFromToken = this.authService.getPairIdFromToken()
-        this.pairId = val || pairIdFromToken;
+      this.userStoreService.getEmployeeIdFromStore().subscribe(val=>{
+        const employeeIdFromToken = this.authService.getEmployeeIdFromToken()
+        this.employeeId = val || employeeIdFromToken;
       })
 
-      this.getPerson();
+      this.getEmployee()
 
 
 
@@ -78,8 +78,8 @@ export class FaceCollectionPageComponent implements OnInit {
           const prediction = await faceapi.detectAllFaces(this.video, new faceapi.TinyFaceDetectorOptions({ inputSize: 224 })).withFaceLandmarks()
           this.ctx.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height);
           if(prediction.length > 1){
-              this.cameraWarning = "Please only 1 person face the camera"
-              this.playText("Please only 1 person face the camera")
+              this.cameraWarning = "Please only 1 employee face the camera"
+              this.playText("Please only 1 employee face the camera")
               this.cameraMessage = ''
               this.drawBoxForDetectedFaces(prediction)
           }
@@ -110,27 +110,57 @@ export class FaceCollectionPageComponent implements OnInit {
 
     }
 
-    getPerson(){
-      this.personService.getPerson(this.pairId).subscribe({
+
+    public getEmployee(): void {
+      this.employeeService.getEmployee(this.employeeId).subscribe({
         next:(data) =>{
           if(data.status){
-            this.currentPerson = data.value
-
-            this.getMissingExpression();
+            this.currentEmployee = data.value
+            this.getPerson();
           }else{
-            this.currentPerson = {}
+            this.currentEmployee = {
+              firstName: "",
+              middleName: "",
+              lastName: "",
+              emailAddress: "",
+              employeeIdNumber: "",
+              employeeRoleName: ""
+            }
+            this.toast.error({detail: "ERROR", summary: data.message, duration: 2000})
           }
-          console.log(data.message)
         },
         error:(e)=>{
-          console.log(e);
+          this.toast.error({detail: "ERROR", summary: e, duration: 2000})
         }
-      })
+      });
+    }
 
+    public getPerson(): void {
+      this.employeeService.getEmployee(this.employeeId).subscribe({
+        next:(data) =>{
+          if(data.status){
+            this.currentPersonId = data.value.id
+            this.getMissingExpression();
+          }else{
+            this.currentEmployee = {
+              firstName: "",
+              middleName: "",
+              lastName: "",
+              emailAddress: "",
+              employeeIdNumber: "",
+              employeeRoleName: ""
+            }
+            this.toast.error({detail: "ERROR", summary: data.message, duration: 2000})
+          }
+        },
+        error:(e)=>{
+          this.toast.error({detail: "ERROR", summary: e, duration: 2000})
+        }
+      });
     }
 
     getMissingExpression(){
-      this.faceToTrainService.getMissingExpression(this.currentPerson).subscribe({
+      this.faceToTrainService.getMissingExpression(this.currentEmployee).subscribe({
         next:(data) =>{
           if(data.status){
             this.isExpressionDisplayed = true
@@ -144,16 +174,15 @@ export class FaceCollectionPageComponent implements OnInit {
           }
 
           this.getFacesToTrain();
-          console.log(data.message)
         },
         error:(e)=>{
-          console.log(e);
+          this.toast.error({detail: "ERROR", summary: e, duration: 2000})
         }
       })
     }
 
     getFacesToTrain(){
-      this.faceToTrainService.getFacesByPersonId(this.currentPerson).subscribe({
+      this.faceToTrainService.getFacesByEmployeeId(this.currentEmployee).subscribe({
         next:(data) =>{
           if(data.status){
             this.facesToTrain = data.value
@@ -164,10 +193,9 @@ export class FaceCollectionPageComponent implements OnInit {
           }
           this.isQuestionFormDisplayed = false
           this.isPaused = false
-          console.log(data.message)
         },
         error:(e)=>{
-          console.log(e);
+          this.toast.error({detail: "ERROR", summary: e, duration: 2000})
         }
       })
     }
@@ -190,10 +218,9 @@ export class FaceCollectionPageComponent implements OnInit {
           else{
             this.toast.error({detail: "ERROR", summary: data.message, duration: 2000})
           }
-          console.log(data.message)
         },
         error:(e)=>{
-          console.log(e);
+          this.toast.error({detail: "ERROR", summary: e, duration: 2000})
         }
       })
     }
@@ -226,10 +253,9 @@ export class FaceCollectionPageComponent implements OnInit {
         else{
           this.toast.error({detail: "ERROR", summary: data.message, duration: 2000})
         }
-          console.log(data.message)
         },
         error:(e)=>{
-          console.log(e);
+          this.toast.error({detail: "ERROR", summary: e, duration: 2000})
         }
       })
     }
@@ -243,7 +269,7 @@ export class FaceCollectionPageComponent implements OnInit {
 
 
     async countDown () {
-      let seconds = 1
+      let seconds = 3
       let counter = seconds
       setInterval(() =>{
         if(this.faceDetected  &&   !this.isPaused && !this.isFacesComplete){
@@ -292,7 +318,7 @@ export class FaceCollectionPageComponent implements OnInit {
       let faceImages = await faceapi.extractFaces(inputImage, regionsToExtract)
 
       if(faceImages.length == 0){
-          console.log('Face not found')
+        this.toast.error({detail: "ERROR", summary: "Face not found", duration: 2000})
       }
       else
       {
@@ -304,7 +330,7 @@ export class FaceCollectionPageComponent implements OnInit {
           this.faceToTrain = {
             base64String:  this.faceCanvas.toDataURL().replace('data:', '').replace(/^.+,/, ''),
             faceExpressionId: this.currentExpression.id!,
-            personId: this.currentPerson.id!
+            pairId: this.currentEmployee.id!
           }
       }
     }

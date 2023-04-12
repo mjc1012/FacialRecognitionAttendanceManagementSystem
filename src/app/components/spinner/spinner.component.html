@@ -1,11 +1,15 @@
-<div class="cssload-container d-flex justify-content-center align-items-center text-center" *ngIf="this.loader.getLoading()">
-  <p>Please Wait...</p>
-  <div>
-    <br>
-    <span>{{ this.loader.hr }} :</span>
-    <span>{{ this.loader.min }} :</span>
-    <span>{{ this.loader.sec }} :</span>
-    <span>{{ this.loader.ms }}</span>
+<div class="cssload-container justify-content-center align-content-center" *ngIf="this.loader.getLoading()">
+
+
+  <div class="d-flex  justify-content-center align-content-center">
+
+    <h3><strong>Please Wait...</strong>
+      <!-- <small><span>{{ this.loader.hr }} :
+          {{ this.loader.min }} :
+          {{ this.loader.sec }} :
+          {{ this.loader.ms }}</span></small> -->
+    </h3>
+    <div class="cssload-speeding-wheel p-5 m-5"></div>
+
   </div>
-  <div class="cssload-speeding-wheel"></div>
 </div>

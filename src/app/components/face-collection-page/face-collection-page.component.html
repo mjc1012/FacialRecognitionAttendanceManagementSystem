@@ -3,67 +3,84 @@
    <app-navbar></app-navbar>
 </div>
 
-<div class="app-content">
-   <div class="centered-div p-5 border-secondary bg-secondary border-rounded">
+<div class="app-content unselectable row">
+   <!-- <div class="centered-div p-5 border-secondary bg-secondary border-rounded"> -->
+   <div class="centered-div p-5 border-secondary bg-dark m-3">
       <div class="row">
+         <!-- the video side -->
          <div class="col-md-6">
-            <div class="border border-rounded py-5 d-flex justify-content-center align-content-center">
+            <h4 class="col-md-12 text-center" style="color: white;">&nbsp;{{ cameraMessage }}{{ cameraWarning }}<span
+                  *ngIf="!isQuestionFormDisplayed">{{ countDownMessage }}</span></h4>
+
+            <div class="py-5 d-flex justify-content-center align-content-center">
                <video id="video" autoplay style="display: none;"></video>
                <canvas id="canvas" width="700px" height="700px"></canvas>
                <canvas id="faceCanvas" width="300px" height="300px" style="display: none;"></canvas>
             </div>
          </div>
-         <div class="col-md-6 row d-flex justify-content-center align-content-around">
-            <div class="col-lg-12 my-5">
-               <h4 class="col-md-12 text-center">{{ cameraMessage }}{{ cameraWarning }}{{ countDownMessage }}</h4>
 
-                     <!-- display the emotion smaple -->
-               <div *ngIf="isExpressionDisplayed">
-                  <img id="expressionSample" [src]="faceExpressionImageBaseUrl+faceExpressionImageFile">
+
+         <div class="col-md-6 row d-flex justify-content-center align-content-between">
+            <!-- display the emotion smaple -->
+
+
+            <div class="row mt-5">
+
+
+               <div class="col-md-6">
+                  <div *ngIf="isExpressionDisplayed">
+                     <img id="expressionSample" [src]="faceExpressionImageBaseUrl+faceExpressionImageFile"
+                        style="min-height: 150px; min-width: 150px; max-height: 200px; max-width: 200px;">
+                     <p style="color: white;">{{expressionMessage}}</p>
+                  </div>
                </div>
-               <p>{{expressionMessage}}</p>
-
-
 
                <!-- display the captures photo -->
-               <div *ngIf="isQuestionFormDisplayed">
-                  <img id="outputImage" [src]="dataUrl">
-                  <p>Are you satisfied with this picture?</p>
+               <div class="col-md-6">
+                  <div *ngIf="isQuestionFormDisplayed">
+                     <img id="outputImage" [src]="dataUrl"
+                        style="min-height: 150px; min-width: 150px; max-height: 200px; max-width: 200px;">
+                     <p style="color: white;">Are you satisfied with this picture?</p>
 
-                  <!-- there should be no yes button -->
-                  <!-- <button class="btn btn-danger btn-md mr-2" (click)="saveFace()">Yes</button> -->
-                  <!-- yes is satisfied then save it-->
-                  <button class="btn btn-danger btn-md mr-2" (click)="startVideoAgain()">No</button>
-                  <!-- no if not satisfied, deletes the photo ang start over again (take another photo)-->
+                     <!-- yes is satisfied then save it-->
+                     <button class="btn btn-danger btn-md mr-2" (click)="startVideoAgain()">No</button>
+                     <!-- no if not satisfied, deletes the photo ang start over again (take another photo)-->
+                  </div>
                </div>
                <!-- this is to display the captures photo of the expression -->
+            </div>
 
 
 
-               <!-- this part displays all the captures photo of the subject (8 photo in total since there are 8 expressions) display this with horizontal scroll bar -->
-               <div *ngIf="facesToTrain?.length != 0 || facesToTrain != null">
-                  <div class="scrollable-widget" style="overflow-x: auto;">
-                     <div *ngFor="let face of facesToTrain">
-                        <div class="row" style="max-height: 400px; max-width:300px;">
-                           <img class="border border-rounded col-sm-12 mb-3"
-                              [src]="faceToTrainImageBaseUrl + currentPerson.id + '/' + face.imageFile">
 
-                           <button type="button" data-bs-toggle="modal" data-bs-target="#deleteEmployeeModal"
-                              class="btn btn-danger btn-md mr-2 col-sm-12"
-                              (click)="getFaceToDelete(face)">Delete</button>
-                        </div>
+            <!-- this part displays all the captures photo of the subject (8 photo in total since there are 8 expressions) display this with horizontal scroll bar -->
+            <div *ngIf="facesToTrain?.length != 0 || facesToTrain != null">
+               <div id="style-2" class="scrollable-widget "
+                  style="overflow-x: auto; overflow-y: none; min-height: 200px;">
 
 
-                        <!-- each photo contains a delete button to delete the picture -->
+                  <div *ngFor="let face of facesToTrain">
+                     <div class="mx-3 row" style="max-height: 150px; max-width:150px;">
+                        <img class="col-md-12 m-2"
+                           [src]="faceToTrainImageBaseUrl + currentPersonId + '/' + face.imageFile"
+                           style="min-height: 125px; min-width: 125px">
+
+                        <button type="button" data-bs-toggle="modal" data-bs-target="#deleteEmployeeModal"
+                           class="btn btn-danger btn-sm mb-3 col-md-12" (click)="getFaceToDelete(face)">Delete</button>
                      </div>
+                     <!-- each photo contains a delete button to delete the picture -->
                   </div>
                </div>
             </div>
+
+
+
          </div>
       </div>
 
       <!-- Delete Modal -->
-      <div class="modal fade" id="deleteEmployeeModal" tabindex="-1" role="dialog" aria-labelledby="deleteModelLabel" aria-hidden="true">
+      <div class="modal fade" id="deleteEmployeeModal" tabindex="-1" role="dialog" aria-labelledby="deleteModelLabel"
+         aria-hidden="true">
          <div class="modal-dialog" role="document">
             <div class="modal-content">
                <div class="modal-header">
@@ -75,13 +92,28 @@
                   <p>Are you sure you want to delete these face image?</p>
                   <div class="modal-footer">
                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
-                     <button (click)="onDeleteFace(deleteFace.id!)" class="btn btn-danger" data-bs-dismiss="modal">Yes</button>
+                     <button (click)="onDeleteFace(deleteFace.id!)" class="btn btn-danger"
+                        data-bs-dismiss="modal">Yes</button>
                   </div>
                </div>
             </div>
          </div>
-       </div>
+      </div>
 
    </div>
 
-   <router-outlet></router-outlet>
+   <div>
+      <div class="centered-div py-2 px-5 justify-content-around d-flex bg-dark text-white">
+         <div class="col-md-2"><strong>Frame Legend:</strong></div>
+         <div class="col-md-3"><span><strong class="text-danger">RED</strong></span>- No face detected inside the frame
+         </div>
+         <div class="col-md-2"><span><strong class="text-primary">BLUE</strong></span>- Your face detected</div>
+         <div class="col-md-3"><span><strong class="text-success">GREEN</strong></span>- Face detected and within frame
+         </div>
+         <div class="col-md-2"><span><strong class="text-warning">ORANGE</strong></span>- Too far from the camera</div>
+
+      </div>
+   </div>
+</div>
+
+<router-outlet></router-outlet>
