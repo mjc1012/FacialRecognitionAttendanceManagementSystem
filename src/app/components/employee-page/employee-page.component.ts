@@ -34,8 +34,7 @@ export class EmployeePageComponent implements OnInit {
   endDate!: Date
   missedTimeInCount: number = 0
   missedTimeOutCount: number = 0
-  lateTimeInCount = 0
-  earlyTimeOutCount = 0
+  WithinWorkTimeCount = 0
   dateSubmitted: boolean = false
   deleteAll = false
   canDeleteEmployees = false
@@ -159,7 +158,7 @@ export class EmployeePageComponent implements OnInit {
   selectAllForDelete(){
     this.deleteAll = !this.deleteAll
     this.filteredEmployees.forEach((employee) =>{
-      employee.toDelete = this.deleteAll
+      if(employee.employeeIdNumber != this.employeeId) employee.toDelete = this.deleteAll
     })
 
     this.canDeleteEmployees = this.filteredEmployees.some(employee => employee.toDelete === true)
@@ -248,6 +247,7 @@ export class EmployeePageComponent implements OnInit {
       formData.append("employeeIdNumber",editForm.value.employeeIdNumber??"");
       formData.append("employeeRoleName",editForm.value.employeeRoleName??"");
       formData.append("imageFile",this.imageFile??"");
+      console.log(formData)
       this.employeeService.updateEmployee(formData).subscribe({
         next:(data) =>{
           if(data.status){
@@ -262,6 +262,7 @@ export class EmployeePageComponent implements OnInit {
         }
       });
       this.imageFile = undefined
+      editForm.reset()
     }
 
     getEmployeeToDelete(employee: Employee){
@@ -289,6 +290,11 @@ export class EmployeePageComponent implements OnInit {
     this.absencesEmployee = employee
   }
 
+
+  public onCloseAbsences(){
+    this.dateSubmitted = false
+  }
+
   public getUserAbsencesCount(DateForm: NgForm): void {
     var startDate = new Date(DateForm.value.startDate)
     var endDate = new Date(DateForm.value.endDate)
@@ -303,25 +309,15 @@ export class EmployeePageComponent implements OnInit {
             var d = new Date(item.timeLog!.split(" ")[0])
             return d.getTime() >= startDate.getTime() && d.getTime() <= endDate.getTime() && item.attendanceLogTypeName == "TimeOut" && item.attendanceLogStatusName == "Absent"
           });
-          var LateTimeIn = data.value.filter((item: AttendanceLog) => {
+          var WithinWorkTime = data.value.filter((item: AttendanceLog) => {
             var d = new Date(item.timeLog!.split(" ")[0])
-            return d.getTime() >= startDate.getTime() && d.getTime() <= endDate.getTime() && item.attendanceLogTypeName == "TimeIn" && item.attendanceLogStateName == "Late"
+            return d.getTime() >= startDate.getTime() && d.getTime() <= endDate.getTime() && item.attendanceLogStateName == "Within Work Time"
           });
-          var EarlyTimeOut = data.value.filter((item: AttendanceLog) => {
-            var d = new Date(item.timeLog!.split(" ")[0])
-            return d.getTime() >= startDate.getTime() && d.getTime() <= endDate.getTime() && item.attendanceLogTypeName == "TimeOut" && item.attendanceLogStateName == "Early"
-          });
-
-
           this.missedTimeInCount = AbsentTimeIn.length
           this.missedTimeOutCount = AbsentTimeOut.length
-          this.lateTimeInCount = LateTimeIn.length
-          this.earlyTimeOutCount = EarlyTimeOut.length
-          this.dateSubmitted = true
+          this.WithinWorkTimeCount = WithinWorkTime.length
         }
-        else{
-          this.userLogs = []
-        }
+        this.dateSubmitted = true
       },
       error:(e)=>{
         this.toast.error({detail: "ERROR", summary: e, duration: 2000})

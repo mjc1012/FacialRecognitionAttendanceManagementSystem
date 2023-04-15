@@ -24,30 +24,17 @@
               <div class="col-lg-6 d-flex justify-content-center align-content-center">
                   <button type="button"
                   data-bs-toggle="modal"
-                  data-bs-target="#updateEmployeeModal"
+                  data-bs-target="#GetAbsencesModal"
                   class="btn btn-sm btn-outline-warning px-5 my-2"> <i class="btn-icon-prepend"
                           data-feather="edit"></i>
-                      Edit Profile</button>
+                          Get Absence</button>
 
               </div>
               <div class="col-lg-6 d-flex justify-content-center align-content-center">
-                  <button type="button" data-bs-toggle="modal" data-bs-target="#GetAbsencesModal"
-                  class="btn btn-sm btn-outline-secondary px-5 my-2"> <i class="btn-icon-prepend"
-                          data-feather="calendar"></i>
-                      Get Absence</button>
-              </div>
-              <div class="col-lg-6 d-flex justify-content-center align-content-center">
-                  <button type="button" data-bs-toggle="modal" data-bs-target="#updatePasswordModal"
-                  class="btn btn-sm btn-outline-success px-5 my-2"> <i class="btn-icon-prepend"
-                          data-feather="lock"></i>
-                      Update Password</button>
-
-              </div>
-              <div class="col-lg-6 d-flex justify-content-center align-content-center">
-                  <button type="button" data-bs-toggle="modal" data-bs-target="#deleteEmployeeModal"
-                  class="btn btn-sm btn-outline-danger px-5 my-2"> <i class="btn-icon-prepend"
-                          data-feather="trash-2"></i>
-                      Delete Profile</button>
+                <button type="button" data-bs-toggle="modal" data-bs-target="#updatePasswordModal"
+                class="btn btn-sm btn-outline-success px-5 my-2"> <i class="btn-icon-prepend"
+                        data-feather="lock"></i>
+                    Update Password</button>
               </div>
 
           </div>
@@ -72,7 +59,7 @@
         <div class="modal-content">
            <div class="modal-header">
               <h5 class="modal-title" id="GetAbsencesModalLabel">Get Absences</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="onCloseAbsences()">
               </button>
            </div>
            <div class="modal-body">
@@ -86,15 +73,14 @@
               <input type="date" [(ngModel)]="endDate" name="endDate" id="endDate" required>
            </div>
               <div class="modal-footer">
-                <button [disabled]="dateForm.invalid || startDate >= endDate" type="submit" class="btn btn-primary">Save changes</button>
+                <button [disabled]="dateForm.invalid || startDate >= endDate" type="submit" class="btn btn-primary">Get Absences</button>
               </div>
               </form>
            </div>
            <div *ngIf="dateSubmitted">
             <p >Number of Missed Time In: {{ missedTimeInCount }}</p>
             <p >Number of Missed Time Out: {{ missedTimeOutCount }}</p>
-            <p>Number of Late Time In: {{ lateTimeInCount }}</p>
-            <p>Number of Early Time Out: {{ earlyTimeOutCount }}</p>
+            <p>Number of Attendance Within Work Time: {{ WithinWorkTimeCount }}</p>
            </div>
         </div>
       </div>
@@ -130,65 +116,6 @@
            </div>
         </div>
       </div>
-      </div>
-
-    <div class="modal fade" id="updateEmployeeModal" tabindex="-1" role="dialog" aria-labelledby="employeeEditModalLabel" aria-hidden="true">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-           <div class="modal-header">
-            <h5 class="modal-title" id="updateEmployeeModalLabel">Edit Employee {{employee.firstName }}</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-              </button>
-           </div>
-           <div class="modal-body">
-            <form #editForm="ngForm">
-              <input type="hidden" ngModel="{{ employee.id }}" name="id" id="id" required>
-              <input type="hidden" ngModel="{{ employee.employeeIdNumber}}" name="employeeIdNumber"  required>
-              <input type="hidden" ngModel="{{ employee.employeeRoleName}}" name="employeeRoleName" id="employeeRoleName" required>
-              <div class="form-group">
-                 <label for="firstName">firstName</label>
-                 <input type="text" ngModel="{{ employee.firstName}}" name="firstName" class="form-control" id="firstName" placeholder="firstName" required>
-              </div>
-              <div class="form-group">
-                 <label for="middleName">middleName</label>
-                 <input type="text" ngModel="{{ employee.middleName}}" name="middleName" class="form-control" id="middleName" placeholder="middleName">
-              </div>
-              <div class="form-group">
-                 <label for="lastName">lastName</label>
-                 <input type="text" ngModel="{{ employee.lastName}}" name="lastName" class="form-control" id="lastName" placeholder="lastName" required>
-              </div>
-              <div class="form-group">
-                 <label for="emailAddress">emailAddress</label>
-                 <input type="text" ngModel="{{ employee.emailAddress}}" name="emailAddress" class="form-control" id="emailAddress" placeholder="emailAddress" required>
-              </div>
-              <div class="modal-footer">
-                <button type="button"  class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button (click)="onUpdateEmloyee(editForm)" [disabled]="editForm.invalid" data-bs-dismiss="modal" class="btn btn-primary" >Save changes</button>
-              </div>
-              </form>
-           </div>
-        </div>
-      </div>
-      </div>
-
-      <!-- Delete Modal -->
-  <div class="modal fade" id="deleteEmployeeModal" tabindex="-1" role="dialog" aria-labelledby="deleteModelLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-       <div class="modal-content">
-          <div class="modal-header">
-             <h5 class="modal-title" id="deleteModelLabel">Delete Employee</h5>
-             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-             </button>
-          </div>
-          <div class="modal-body">
-             <p>Are you sure you want to delete employee {{employee.firstName}}?</p>
-             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
-                <button (click)="onDeleteEmloyee(employee)" class="btn btn-danger" data-bs-dismiss="modal">Yes</button>
-             </div>
-          </div>
-       </div>
-    </div>
       </div>
 
 </div>

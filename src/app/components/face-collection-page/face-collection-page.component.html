@@ -1,5 +1,5 @@
 <app-spinner></app-spinner>
-<div class="mb-5">
+<div class="mb-1">
    <app-navbar></app-navbar>
 </div>
 
@@ -9,8 +9,7 @@
       <div class="row">
          <!-- the video side -->
          <div class="col-md-6">
-            <h4 class="col-md-12 text-center" style="color: white;">&nbsp;{{ cameraMessage }}{{ cameraWarning }}<span
-                  *ngIf="!isQuestionFormDisplayed">{{ countDownMessage }}</span></h4>
+            <h4 class="col-md-12 text-center" style="color: white;">&nbsp;{{ cameraMessage }}{{ cameraWarning }}<span>{{ countDownMessage }}</span></h4>
 
             <div class="py-5 d-flex justify-content-center align-content-center">
                <video id="video" autoplay style="display: none;"></video>

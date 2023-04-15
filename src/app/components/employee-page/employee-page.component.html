@@ -133,7 +133,7 @@
             <div class="modal-content">
                <div class="modal-header">
                   <h5 class="modal-title" id="GetAbsencesModalLabel">Get Absences</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="onCloseAbsences()">
                   </button>
                </div>
                <div class="modal-body">
@@ -148,15 +148,14 @@
                      </div>
                      <div class="modal-footer">
                         <button [disabled]="dateForm.invalid || startDate > endDate" type="submit"
-                           class="btn btn-primary">Save changes</button>
+                           class="btn btn-primary">Get Absences</button>
                      </div>
                   </form>
                </div>
                <div *ngIf="dateSubmitted">
                   <p>Number of Missed Time In: {{ missedTimeInCount }}</p>
                   <p>Number of Missed Time Out: {{ missedTimeOutCount }}</p>
-                  <p>Number of Late Time In: {{ lateTimeInCount }}</p>
-                  <p>Number of Early Time Out: {{ earlyTimeOutCount }}</p>
+                  <p>Number of Attendance Within Work Time: {{ WithinWorkTimeCount }}</p>
                </div>
             </div>
          </div>
@@ -215,7 +214,7 @@
                         <button type="button" id="add-employee-form" class="btn btn-secondary"
                            data-bs-dismiss="modal">Close</button>
                         <button [disabled]="addForm.invalid" type="submit" class="btn btn-primary"
-                           data-bs-dismiss="modal">Save changes</button>
+                           data-bs-dismiss="modal">Add</button>
                      </div>
                   </form>
                </div>

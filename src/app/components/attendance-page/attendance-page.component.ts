@@ -243,6 +243,7 @@ export class AttendancePageComponent implements OnInit {
 
     getLogToUpdate(log: AttendanceLog){
       this.editLog = log
+      console.log(this.editLog)
     }
 
     public onUpdateLog(editForm: NgForm): void {
@@ -261,6 +262,7 @@ export class AttendancePageComponent implements OnInit {
           this.toast.error({detail: "ERROR", summary: e, duration: 2000})
         }
       });
+      editForm.reset()
     }
 
     getLogToDelete(log: AttendanceLog){
